@@ -21,7 +21,7 @@
 - Should users be able to save collections, or only Brendan initially?
 - Should uploaded photos be deleted after analysis, retained privately, or retained with opt-in for model evaluation?
 - Should results show prices? If yes, choose and license an approved sold-transaction data source.
-- Is the system US-card/US-dollar first, or international from launch?
+- The MVP is US-card/US-dollar first; add international market profiles only after the US workflow is stable.
 - Which personal-fit profile is public: Brendan's priorities, a neutral collector profile, or selectable profiles?
 
 ## Data and legal requirements

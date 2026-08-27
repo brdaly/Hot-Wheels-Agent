@@ -2,7 +2,7 @@
 
 An evidence-first, multimodal buyer’s agent for exact-release identification, transparent ranking, regional price discipline, proactive case hunting, and longitudinal collection intelligence.
 
-> **Status:** production-oriented foundation. The deterministic core, multimodal contract, Ireland dataset, APIs, persistence model, security boundary, tests, eval fixtures and responsive interface are implemented. External release retrieval and sold-transaction providers remain explicit integrations—not fabricated capabilities.
+> **Status:** production-oriented foundation. The deterministic core, multimodal contract, US retail dataset, APIs, persistence model, security boundary, tests, eval fixtures and responsive interface are implemented. External release retrieval and sold-transaction providers remain explicit integrations—not fabricated capabilities.
 
 ## Why this architecture is different
 
@@ -36,7 +36,7 @@ flowchart TD
 - Conservative, product-line-specific case/mix inference and proactive targets.
 - Collection Priority Score v2.0 with seven bounded components.
 - Independent market, condition and regional price gates.
-- Ireland retail snapshot and ranked buying board dated 2026-08-02.
+- US/USD retail benchmark snapshot dated 2026-08-27.
 - Complete 2026 TH/STH case map as a versioned dataset.
 - Supabase model for releases, evidence, collection, insights, prices, targets and audits.
 - Protected collection API, rate limiting, file-signature validation, security headers, traces and `store: false` calls.
@@ -49,7 +49,7 @@ flowchart TD
 | `/api/analyze` | POST multipart | Analyze 1–4 images and rank all visible cars |
 | `/api/score` | POST JSON | Run deterministic score and gate policy |
 | `/api/targets` | GET | Current target board and 2026 hunt map |
-| `/api/prices` | GET | Ireland regional benchmark snapshot |
+| `/api/prices` | GET | US/USD retail benchmark snapshot |
 | `/api/collection` | GET/POST | Protected collection persistence |
 | `/api/health` | GET | Deployment health |
 

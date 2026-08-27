@@ -1,0 +1,48 @@
+{
+  "market": "US",
+  "currency": "USD",
+  "asOf": "2026-08-27",
+  "provenance": "Current first-party retailer listings; re-verify exact SKU, store and availability before purchase",
+  "benchmarks": [
+    {
+      "category": "mainline_single",
+      "retailer": "Walmart",
+      "normalPrice": 1.24,
+      "strongBuyAtOrBelow": 1.00,
+      "sourceUrl": "https://www.walmart.com/ip/34253677"
+    },
+    {
+      "category": "five_pack",
+      "retailer": "Target",
+      "normalPrice": 5.69,
+      "strongBuyAtOrBelow": 5.00,
+      "sourceUrl": "https://www.target.com/p/-/A-14783201"
+    },
+    {
+      "category": "premium_single",
+      "retailer": "Mattel / major US retail",
+      "normalPrice": 6.50,
+      "strongBuyAtOrBelow": 5.50,
+      "sourceUrl": "https://creations.mattel.com/pages/hot-wheels-collectors"
+    },
+    {
+      "category": "team_transport",
+      "retailer": "Target",
+      "normalPrice": 16.99,
+      "strongBuyAtOrBelow": 15.00,
+      "sourceUrl": "https://www.target.com/s/hot%2Bwheels%2Bteam%2Btransport"
+    },
+    {
+      "category": "premium_4_pack",
+      "retailer": "Mattel Creations",
+      "normalPrice": 36.00,
+      "strongBuyAtOrBelow": 30.00,
+      "sourceUrl": "https://creations.mattel.com/products/hot-wheels-premium-collector-display-set-jhw42"
+    }
+  ],
+  "notes": [
+    "Retail benchmarks are decision gates, not resale-value estimates.",
+    "Store pricing, clearance and availability vary by location.",
+    "Exact-release sold transactions are still required for secondary-market valuation."
+  ]
+}

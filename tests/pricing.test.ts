@@ -1,3 +1,4 @@
 import { describe,expect,it } from "vitest";
-import { evaluateIrishPrice,inferPriceCategory } from "../lib/pricing";
+import { evaluateIrishPrice,evaluateUSPrice,inferPriceCategory } from "../lib/pricing";
 describe("Ireland price gate",()=>{it("recognizes premium retail",()=>expect(evaluateIrishPrice("premium_single",9.99).verdict).toBe("fair"));it("flags a strong sale",()=>expect(evaluateIrishPrice("premium_2_pack",14.99).verdict).toBe("strong_buy"));it("flags overpricing",()=>expect(evaluateIrishPrice("team_transport",30).verdict).toBe("overpriced"));it("maps lines",()=>expect(inferPriceCategory("Car Culture")).toBe("premium_single"));});
+describe("US price gate",()=>{it("recognizes current mainline retail",()=>expect(evaluateUSPrice("mainline_single",1.24).verdict).toBe("fair"));it("recognizes a premium sale",()=>expect(evaluateUSPrice("premium_single",5.5).verdict).toBe("strong_buy"));it("flags an inflated Team Transport",()=>expect(evaluateUSPrice("team_transport",22).verdict).toBe("overpriced"));it("does not fabricate an unsupported benchmark",()=>expect(evaluateUSPrice("premium_2_pack",15).verdict).toBe("unknown"));});

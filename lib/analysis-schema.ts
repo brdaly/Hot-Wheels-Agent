@@ -42,8 +42,8 @@ export const PhotoAnalysisSchema = z.object({
 });
 
 export const AnalyzeOptionsSchema = z.object({
-  market: z.enum(["IE", "US"]).default("IE"), observedPrice: z.coerce.number().nonnegative().optional(),
-  currency: z.enum(["EUR", "USD"]).optional(),
+  market: z.literal("US").default("US"), observedPrice: z.coerce.number().nonnegative().optional(),
+  currency: z.literal("USD").optional(),
 });
 
 export type Identification = z.infer<typeof IdentificationSchema>;
