@@ -51,6 +51,7 @@ flowchart TD
 | `/api/score` | POST JSON | Run deterministic score and gate policy |
 | `/api/targets` | GET | Current target board and 2026 hunt map |
 | `/api/prices` | GET | US/USD retail benchmark snapshot |
+| `/api/reference-image` | GET | Allowlisted, cached relay for attributed hunt-map references |
 | `/api/collection` | GET/POST | Protected collection persistence |
 | `/api/health` | GET | Deployment health |
 

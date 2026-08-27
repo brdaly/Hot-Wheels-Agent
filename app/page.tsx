@@ -180,7 +180,7 @@ export default function Home() {
                 <div className="case-label"><span>MAINLINE</span><strong>CASE {item.case}</strong></div>
                 {([ ["super", item.super], ["regular", item.treasure] ] as const).map(([kind, car]) => (
                   <a className={`hunt-car ${kind}`} href={car.sourceUrl} target="_blank" rel="noreferrer" key={car.part}>
-                    <div className="hunt-image"><img src={car.imageUrl} alt={`${car.name}, 2026 ${kind === "super" ? "Super Treasure Hunt" : "Treasure Hunt"}`} loading="lazy" onError={(event) => { event.currentTarget.src = "/hunt-placeholder.svg"; }}/><span>{kind === "super" ? "SUPER TREASURE HUNT" : "TREASURE HUNT"}</span></div>
+                    <div className="hunt-image"><img src={`/api/reference-image?src=${encodeURIComponent(car.imageUrl)}`} alt={`${car.name}, 2026 ${kind === "super" ? "Super Treasure Hunt" : "Treasure Hunt"}`} loading="lazy" onError={(event) => { event.currentTarget.src = "/hunt-placeholder.svg"; }}/><span>{kind === "super" ? "SUPER TREASURE HUNT" : "TREASURE HUNT"}</span></div>
                     <div className="hunt-copy"><small>{car.part}</small><h3>{car.name}</h3><p>Open exact-release reference ↗</p></div>
                   </a>
                 ))}
