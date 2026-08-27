@@ -31,13 +31,14 @@ flowchart TD
 
 ## Implemented product surface
 
-- Multi-photo, multi-car analysis with up to 20 ranked observations.
+- Camera capture, gallery upload, drag/drop and autocomplete-assisted name search.
+- Multi-photo, multi-car analysis with up to 20 ranked observations; text-only analysis keeps visual claims gated.
 - Exact-release fields, chase-marker restraint, confidence and verification queue.
 - Conservative, product-line-specific case/mix inference and proactive targets.
 - Collection Priority Score v2.0 with seven bounded components.
 - Independent market, condition and regional price gates.
 - US/USD retail benchmark snapshot dated 2026-08-27.
-- Complete 2026 TH/STH case map as a versioned dataset.
+- Complete 2026 TH/STH visual case grid with 30 exact-release references and source attribution.
 - Supabase model for releases, evidence, collection, insights, prices, targets and audits.
 - Protected collection API, rate limiting, file-signature validation, security headers, traces and `store: false` calls.
 - Golden eval contract, regression tests and responsive Daly Ventures UI.
@@ -46,7 +47,7 @@ flowchart TD
 
 | Route | Method | Purpose |
 |---|---|---|
-| `/api/analyze` | POST multipart | Analyze 1–4 images and rank all visible cars |
+| `/api/analyze` | POST multipart | Analyze 0–4 images and/or a typed car query; rank supported releases |
 | `/api/score` | POST JSON | Run deterministic score and gate policy |
 | `/api/targets` | GET | Current target board and 2026 hunt map |
 | `/api/prices` | GET | US/USD retail benchmark snapshot |
@@ -84,6 +85,6 @@ Deploy on Vercel, connect Supabase, and map `hotwheels.dalyventures.com`. Link f
 
 ## Data and IP posture
 
-No original user workbook, raw collection photo, marketplace scrape, Mattel artwork or third-party database dump is committed. Seed JSON contains user-supplied derived research with dates and provenance. Sold transactions—not active listings—must support value claims.
+No original user workbook, raw collection photo, marketplace scrape, Mattel artwork or third-party database dump is committed. The chase grid hotlinks third-party release references with direct source attribution and a local unavailable-image fallback; it does not redistribute those image files. Seed JSON contains derived research with dates and provenance. Sold transactions—not active listings—must support value claims.
 
 Collection priority is not a return forecast. This independent project is not affiliated with or endorsed by Mattel.
