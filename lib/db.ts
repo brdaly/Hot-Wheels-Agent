@@ -1,0 +1,6 @@
+import { createClient } from "@supabase/supabase-js";
+import type { PhotoAnalysis } from "./analysis-schema";
+function adminClient() { const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY; return url && key ? createClient(url, key, { auth: { persistSession: false } }) : null; }
+export async function persistPhotoEvaluation(analysis: PhotoAnalysis, cars: unknown[], metadata: Record<string, unknown>) { const db = adminClient(); if (!db) return null; const { data, error } = await db.from("photo_evaluations").insert({ scene_snapshot: analysis.scene, ranked_results: cars, proactive_targets: analysis.proactiveTargets, limitations: analysis.limitations, metadata }).select("id").single(); if (error) throw error; return data.id as string; }
+export async function listCollection(limit = 100) { const db = adminClient(); if (!db) return []; const { data, error } = await db.from("collection_items").select("*, releases(*, castings(*))").order("created_at", { ascending: false }).limit(limit); if (error) throw error; return data; }
+export async function addCollectionItem(input: Record<string, unknown>) { const db = adminClient(); if (!db) throw new Error("Database is not configured"); const { data, error } = await db.from("collection_items").insert(input).select("id").single(); if (error) throw error; return data; }

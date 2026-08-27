@@ -1,0 +1,7 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { addCollectionItem, listCollection } from "@/lib/db";
+import { hasAdminToken } from "@/lib/security";
+const Input = z.object({ release_id: z.string().uuid().nullable().optional(), quantity: z.number().int().min(1).max(100).default(1), ownership_status: z.enum(["observed", "candidate", "owned", "sold", "traded"]), package_condition: z.string().max(120).nullable().optional(), purchase_price: z.number().nonnegative().nullable().optional(), purchase_currency: z.enum(["EUR", "USD", "GBP"]).default("USD"), purchase_date: z.string().date().nullable().optional(), location: z.string().max(160).nullable().optional(), notes: z.string().max(2000).nullable().optional() });
+export async function GET(request: NextRequest) { if (!hasAdminToken(request.headers.get("authorization"))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); return NextResponse.json({ items: await listCollection() }); }
+export async function POST(request: NextRequest) { if (!hasAdminToken(request.headers.get("authorization"))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); const parsed = Input.safeParse(await request.json().catch(() => null)); if (!parsed.success) return NextResponse.json({ error: "Invalid collection item", issues: parsed.error.issues }, { status: 400 }); return NextResponse.json(await addCollectionItem(parsed.data), { status: 201 }); }

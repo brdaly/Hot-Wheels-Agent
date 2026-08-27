@@ -1,0 +1,10 @@
+node_modules/
+.next/
+coverage/
+.env*
+!.env.example
+*.log
+*.tsbuildinfo
+.DS_Store
+private_source_material/
+uploads/
