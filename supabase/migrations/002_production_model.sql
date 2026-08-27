@@ -6,3 +6,5 @@ alter table collection_items add column if not exists purchase_currency char(3) 
 create index if not exists photo_evaluations_created_idx on photo_evaluations(created_at desc); create index if not exists target_market_rank_idx on target_snapshots(market, snapshot_date desc, rank); create index if not exists retail_market_date_idx on retail_price_snapshots(market, observed_on desc);
 alter table sources enable row level security; alter table castings enable row level security; alter table releases enable row level security; alter table evaluations enable row level security; alter table collection_items enable row level security; alter table market_evidence enable row level security; alter table insights enable row level security; alter table photo_evaluations enable row level security; alter table retail_price_snapshots enable row level security; alter table target_snapshots enable row level security; alter table audit_events enable row level security;
 -- No public policies by design. Server-only service role owns collection data.
+
+-- Trigger initial Supabase production deployment.
