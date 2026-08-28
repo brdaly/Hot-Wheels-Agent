@@ -70,4 +70,17 @@ describe("governed chase references", () => {
     expect(findChaseReference(identification, afterExpiry).match).toBe("source_expired");
     expect(chaseVerification({ ...ferrari, identification }, afterExpiry).verified).toBe(false);
   });
+
+  it("cross-checks the year and casting associated with a product code", () => {
+    const base = {
+      ...ferrari.identification,
+      productCode: "JJM00",
+      releaseYear: 2026,
+      casting: "’87 Buick Regal GNX",
+      chaseStatus: "regular_th" as const,
+    };
+    expect(findChaseReference({ ...base, releaseYear: 2025 }).match).not.toBe("exact_product_code");
+    expect(findChaseReference({ ...base, casting: "Wrong casting" }).match).not.toBe("exact_product_code");
+  });
 });
+

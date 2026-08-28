@@ -4,7 +4,7 @@
 
 1. Merge only through a pull request after `npm run check`, dependency audit, migration static checks, and the accessibility smoke test pass.
 2. Connect the private GitHub repository to separate preview and production Vercel projects.
-3. Create separate preview and production Supabase projects. Apply migrations `001` through `006` in order.
+3. Create separate preview and production Supabase projects. Apply migrations `001` through `007` in order.
 4. Disable public Supabase sign-ups, invite the owner, and complete the owner bootstrap in `SECURITY.md`.
 5. Configure environment variables in the hosting platform; do not expose service-role or OpenAI keys to the browser.
 6. Deploy preview. Verify `/api/health`, token-protected `/api/ready`, sign-in, one text-only analysis, one valid image analysis, a rejected oversized file, and owner-scoped collection access.
@@ -41,6 +41,7 @@ Never set `HOTWHEELS_DEV_AUTH_BYPASS=true` in preview, production, or any shared
 - Verify RLS is enabled on every public table and that anon requests receive no collection/evaluation data.
 - Test the invited owner can read/write only rows with their own `owner_id`.
 - Verify the service role alone can consume rate limits and acquire/release analysis leases.
+- Verify incomplete releases retain null fingerprints and no alias claims, overlapping exact aliases are rejected, and the service-role quantity RPC returns only the requested owner's exact aliases.
 - Confirm the scheduled purge exists, or configure an approved scheduler for `private.purge_expired_trust_safety_data()`.
 - Verify direct anon/authenticated reads of `media_assets`, `media_renditions`, `media_requests`, `media_audit_events`, and `private.media_rights_evidence` are denied.
 - Verify `approved_release_media(...)` returns zero rows for provisional releases, reviewed/current fingerprint mismatch, future/unverified/expired/withdrawn evidence, regional-only rights, wrong channels, revoked assets, absent metadata stripping, unauthorized transformations, and non-verified derivatives. `worldwide` is the only supported publication territory in v1; this is not geolocation enforcement.

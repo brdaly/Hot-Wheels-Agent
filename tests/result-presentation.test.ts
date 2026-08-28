@@ -6,8 +6,27 @@ import {
   marketEvidenceGrade,
   recommendationFor,
   scoreObservation,
+  type VerifiedMarketEvidence,
 } from "../lib/scoring";
+import { releaseFingerprint } from "../lib/release-fingerprint";
 import { ferrari, withExactSoldComps } from "./fixtures";
+
+const NOW = new Date("2026-08-28T12:00:00Z");
+
+function verifiedEvidence(count = 5): VerifiedMarketEvidence {
+  const observation = withExactSoldComps(ferrari, count);
+  return {
+    comps: observation.marketEvidence.exactSoldComps.map((comp) => ({
+      ...comp,
+      provider: "licensed-sales-adapter",
+      providerVerified: true,
+    })),
+    releaseFingerprint: releaseFingerprint(observation.identification).key,
+    targetCurrency: "USD",
+    targetPackaging: "sealed",
+    targetCondition: "carded excellent",
+  };
+}
 
 describe("authoritative result presentation", () => {
   it("displays deterministic unknown/verify when the model hint says excellent but cues are missing", () => {
@@ -48,18 +67,10 @@ describe("authoritative result presentation", () => {
     expect(presentation.decisionReady).toBe(false);
   });
 
-  it("uses the backend comparable-comp count rather than the raw submitted array length", () => {
+  it("fails closed when only raw submitted comps are available", () => {
     const observation = withExactSoldComps(ferrari, 5);
-    observation.marketEvidence.exactSoldComps[0] = {
-      ...observation.marketEvidence.exactSoldComps[0],
-      conditionComparable: false,
-    };
-    observation.marketEvidence.exactSoldComps[1] = {
-      ...observation.marketEvidence.exactSoldComps[1],
-      currency: "EUR",
-    };
-    const count = comparableExactCompCount(observation, new Date("2026-08-28T12:00:00Z"));
-    const grade = marketEvidenceGrade(observation, new Date("2026-08-28T12:00:00Z"));
+    const count = comparableExactCompCount(observation, NOW);
+    const grade = marketEvidenceGrade(observation, NOW);
     const presentation = deriveResultPresentation({
       recommendation: recommendationFor(observation, scoreObservation(observation).total),
       upstreamVerify: false,
@@ -69,8 +80,26 @@ describe("authoritative result presentation", () => {
     });
 
     expect(observation.marketEvidence.exactSoldComps).toHaveLength(5);
-    expect(presentation.marketEvidenceCount).toBe(3);
-    expect(presentation.marketEvidenceGrade).toBe("B");
+    expect(presentation.marketEvidenceCount).toBe(0);
+    expect(presentation.marketEvidenceGrade).toBe("U");
+  });
+
+  it("presents the verified backend count rather than the raw array length", () => {
+    const observation = withExactSoldComps(ferrari, 5);
+    const evidence = verifiedEvidence(5);
+    const count = comparableExactCompCount(observation, NOW, evidence);
+    const grade = marketEvidenceGrade(observation, NOW, evidence);
+    const score = scoreObservation(observation, NOW, evidence);
+    const presentation = deriveResultPresentation({
+      recommendation: recommendationFor(observation, score.total, {}, NOW, evidence),
+      upstreamVerify: false,
+      otherVerificationCount: 0,
+      marketEvidenceCount: count,
+      marketEvidenceGrade: grade,
+    });
+
+    expect(presentation.marketEvidenceCount).toBe(5);
+    expect(presentation.marketEvidenceGrade).toBe("A");
   });
 
   it("keeps the result card wired to deterministic presentation fields", () => {

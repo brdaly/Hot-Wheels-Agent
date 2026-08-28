@@ -62,7 +62,12 @@ export function findChaseReference(identification: Identification, asOf = new Da
     return { match: "source_expired" as const, entry: null, sources: SOURCES };
   }
   const exact = identification.productCode
-    ? entries.find((entry) => normalize(entry.part) === normalize(identification.productCode) && entry.status === status)
+    ? entries.find((entry) =>
+      normalize(entry.part) === normalize(identification.productCode) &&
+      entry.status === status &&
+      identification.releaseYear === 2026 &&
+      normalize(entry.name) === normalize(identification.casting)
+    )
     : undefined;
   if (exact) return { match: "exact_product_code" as const, entry: exact, sources: SOURCES };
   const byName = identification.releaseYear === 2026
@@ -84,3 +89,4 @@ export function deterministicCaseInference(cars: CarObservation[], asOf = new Da
     confidence: matches.every((result) => result.match === "exact_product_code") ? "high" as const : "medium" as const,
   };
 }
+

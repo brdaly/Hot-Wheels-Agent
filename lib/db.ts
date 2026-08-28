@@ -38,26 +38,22 @@ export async function persistPhotoEvaluation(
 }
 
 export async function ownedQuantitiesByFingerprint(fingerprints: string[], ownerId?: string) {
-  const unique = [...new Set(fingerprints)].filter(Boolean);
+  const unique = [...new Set(fingerprints.map((fingerprint) => fingerprint.trim()).filter(Boolean))];
   if (!unique.length) return {} as Record<string, number>;
   const db = adminClient();
   if (!db) return {} as Record<string, number>;
-  let query = db
-    .from("collection_items")
-    .select("quantity,ownership_status,releases!inner(release_fingerprint)")
-    .eq("ownership_status", "owned")
-    .in("releases.release_fingerprint", unique)
-    .limit(500);
-  if (ownerId) query = query.eq("owner_id", ownerId);
-  const { data, error } = await query;
+  const { data, error } = await db.rpc("owned_quantities_by_fingerprints", {
+    target_fingerprints: unique,
+    target_owner_id: ownerId ?? null,
+  });
   if (error) throw error;
   const quantities: Record<string, number> = {};
-  for (const item of data ?? []) {
-    const release = Array.isArray(item.releases) ? item.releases[0] : item.releases;
-    const key = release && typeof release === "object" && "release_fingerprint" in release
-      ? String(release.release_fingerprint ?? "")
-      : "";
-    if (key) quantities[key] = (quantities[key] ?? 0) + Number(item.quantity ?? 0);
+  for (const row of data ?? []) {
+    const fingerprint = typeof row?.fingerprint === "string" ? row.fingerprint : "";
+    const quantity = Number(row?.quantity ?? 0);
+    if (unique.includes(fingerprint) && Number.isSafeInteger(quantity) && quantity > 0) {
+      quantities[fingerprint] = quantity;
+    }
   }
   return quantities;
 }

@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     let collectionWarning: string | null = null;
     try {
       ownedQuantities = await ownedQuantitiesByFingerprint(
-        fingerprints.map((item) => item.key),
+        fingerprints.flatMap((item) => item.status === "exact" ? item.aliases : []),
         identity.developmentBypass ? undefined : identity.userId,
       );
     } catch (error) {
@@ -188,7 +188,9 @@ export async function POST(request: NextRequest) {
       const priceGate = evaluateUSPrice(observation.identification.category, itemPrice.amount, itemPrice.currency);
       const releaseGate = exactReleaseGate(observation);
       const recommendation = recommendationFor(observation, score.total, {
-        ownedQuantity: ownedQuantities[fingerprint.key] ?? 0,
+        ownedQuantity: fingerprint.status === "exact"
+          ? Math.max(0, ...fingerprint.aliases.map((alias) => ownedQuantities[alias] ?? 0))
+          : 0,
         copyIntent: parsed.data.copyIntent,
       });
       const referenceMatch = findChaseReference(observation.identification);
@@ -256,6 +258,12 @@ export async function POST(request: NextRequest) {
       inferenceSources: deterministicCase?.sources ?? [],
       confidence: deterministicCase?.confidence ?? "low",
     };
+    const sanitizedAnalysis = {
+      ...analysis,
+      scene,
+      proactiveTargets,
+      limitations: [...new Set(limitations)],
+    };
 
     const runtime = {
       ...providerResult.runtime,
@@ -276,7 +284,7 @@ export async function POST(request: NextRequest) {
     let evaluationId: string | null = null;
     let persistenceWarning: string | null = collectionWarning;
     try {
-      evaluationId = await persistPhotoEvaluation(analysis, cars, metadata, identity.developmentBypass ? undefined : identity.userId);
+      evaluationId = await persistPhotoEvaluation(sanitizedAnalysis, cars, metadata, identity.developmentBypass ? undefined : identity.userId);
     } catch (error) {
       persistenceWarning = [persistenceWarning, "Analysis completed, but the result was not saved."].filter(Boolean).join(" ");
       console.error(JSON.stringify({ level: "error", event: "persistence_failed", traceId, error: error instanceof Error ? error.message : "unknown" }));
@@ -307,7 +315,7 @@ export async function POST(request: NextRequest) {
       cars,
       scene,
       proactiveTargets,
-      limitations: [...new Set(limitations)],
+      limitations: sanitizedAnalysis.limitations,
       runtime,
       privacy: {
         providerStorageRequested: false,

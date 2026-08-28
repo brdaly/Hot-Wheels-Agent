@@ -18,7 +18,7 @@ The current system is a modular monolith with two deliberately separate experien
 4. Ask the model for strict observations: visible identity fields, chase cues, condition, named collection features, uncertainty, and verification gaps.
 5. Parse with the bounded `photo-analysis-v3.1` contract.
 6. Remove all model-stage sold-comparable claims at the application boundary.
-7. Build `release-fingerprint-v1.0`; incomplete identity remains provisional and does not merge.
+7. Build `release-fingerprint-v2`; incomplete identity remains provisional and does not merge.
 8. Cross-check eligible 2026 chase candidates against the dated item map and governed sources.
 9. Compute Collection Priority Score v3.1, independent evidence grades, price gate, condition gate, and duplicate-aware recommendation.
 10. Return a no-store result. Persist only when `PERSIST_ANALYSES=true`, with expiry and owner identity.
@@ -37,7 +37,7 @@ The current system is a modular monolith with two deliberately separate experien
 ## Data model
 
 - `castings` describe tooling candidates; names alone are not unique identity.
-- `releases` add year, line, mix, code, color, wheels, chase, card, region, and a release fingerprint.
+- `releases` add year, line, mix, code, color, wheels, chase, card, and region. Unknown legacy fields remain null and provisional. Exact rows use a canonical identifier-independent core, while a globally unique alias-claim registry binds product-code and collector-number fingerprints to one release.
 - `photo_evaluations` are expiring analysis snapshots, not inventory truth.
 - `collection_items` are owner-scoped quantities/status and may reference a verified release/evaluation.
 - `market_evidence` stores transaction evidence with exact/near/unknown match quality.
