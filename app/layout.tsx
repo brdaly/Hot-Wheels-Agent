@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "Hot Wheels Super Analyst | Daly Ventures",
-  description: "Evidence-led Hot Wheels identification, scoring, ranking, US price discipline, and collection intelligence.",
+  applicationName: "Hot Wheels Collector Intelligence",
+  title: "Hot Wheels Collector Intelligence | Daly Ventures",
+  description: "Verify-first Hot Wheels identification, evidence, collection fit, and US retail price discipline.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

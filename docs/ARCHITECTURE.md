@@ -1,30 +1,62 @@
-# Architecture and decision records
+# Architecture
 
-## ADR-001 — The model does not own the score
+The current system is an owner-only modular monolith: a Next.js application owns the interface and API, OpenAI supplies bounded visual observations, and Supabase supplies authentication, row-level-security persistence, quotas, leases, and audit history. The accepted decision is recorded in [ADR-0001](adr/0001-evidence-governed-owner-architecture.md).
 
-Vision returns strict, bounded observations. TypeScript validates components, totals the score, assigns the tier, calculates evidence grade, applies condition policy and evaluates regional price. This prevents prompt drift from changing arithmetic.
+## Trust boundaries
 
-## ADR-002 — Preference is not market evidence
+1. **Browser to application:** same-origin requests, owner session, request-size/type checks, and no-store responses.
+2. **Application to OpenAI:** normalized images, pseudonymous safety identifier, strict schema, bounded tokens, `store: false`, and no acceptance of model-generated market comps.
+3. **Application to Supabase:** owner access token for collection reads/writes under RLS; service role only for privileged quota, lease, usage, retention, and audit operations.
+4. **Application to collector sources:** versioned derived facts and outbound attributed links only. No live scraping or image relay occurs in a user request.
 
-Collection priority measures fit. Market Evidence Grade reports support quality. Condition and price remain explicit gates. A high preference score is never an investment claim.
+## Analysis sequence
 
-## ADR-003 — Exact release is the primary entity
+1. Authenticate the configured owner and enforce exact-origin, hourly, daily, and concurrency limits.
+2. Reject oversized or unsupported requests before any billable operation.
+3. Decode, reorient, resize, re-encode, and strip metadata from each image.
+4. Ask the model for strict observations: visible identity fields, chase cues, condition, named collection features, uncertainty, and verification gaps.
+5. Parse with the bounded `photo-analysis-v3.0` contract.
+6. Remove all model-stage sold-comparable claims at the application boundary.
+7. Build `release-fingerprint-v1.0`; incomplete identity remains provisional and does not merge.
+8. Cross-check eligible 2026 chase candidates against the dated item map and governed sources.
+9. Compute Collection Priority Score v3.0, independent evidence grades, price gate, condition gate, and duplicate-aware recommendation.
+10. Return a no-store result. Persist only when `PERSIST_ANALYSES=true`, with expiry and owner identity.
 
-Recommendations attach to year, line, mix, livery, wheels, card, code and chase status. A photo creates an observation; ownership requires an explicit action.
+## Responsibility split
 
-## ADR-004 — Knowledge is temporal and attributable
+| Concern | Model | Deterministic application | Human owner |
+|---|---:|---:|---:|
+| Read visible package/car evidence | Yes | Validates shape | Reviews |
+| Suggest candidate identity | Yes | Fingerprints and gates | Confirms |
+| Verify chase status | No | Cross-checks evidence; can only remain candidate until complete | Promotes |
+| Calculate score/tier | No | Yes | Can change policy by versioned code change |
+| Supply completed-sale evidence | No | Authorized provider only | Reviews comparability |
+| Mark owned or increment quantity | No | Enforces owner/RLS rules | Explicitly confirms |
 
-Regional retail, case lists, targets and evidence are dated snapshots. Corrections append evidence or supersede insights; they do not silently rewrite evaluations.
+## Data model
 
-## Request topology
+- `castings` describe tooling candidates; names alone are not unique identity.
+- `releases` add year, line, mix, code, color, wheels, chase, card, region, and a release fingerprint.
+- `photo_evaluations` are expiring analysis snapshots, not inventory truth.
+- `collection_items` are owner-scoped quantities/status and may reference a verified release/evaluation.
+- `market_evidence` stores transaction evidence with exact/near/unknown match quality.
+- `sources` store authority, verification, retrieval/effective/expiry dates, and content hash.
+- private rate buckets and analysis leases protect billable operations across instances.
+- usage and audit events support cost review and corrections without storing raw photos.
 
-1. Validate rate, count, size and magic bytes.
-2. Send images server-side to Responses with `store: false`.
-3. Parse structured output with Zod; ambiguous images stay low confidence.
-4. Deterministic policy ranks every car and returns four signals.
-5. Persist structured results and trace metadata, not raw photos.
-6. Human review promotes candidates to exact releases and owned inventory.
+## Freshness and failure behavior
 
-## Scaling boundaries
+- Source-catalog entries fail closed after their review expiry.
+- Retail snapshots older than 45 days return an unknown price gate.
+- 2027 data is watchlist-only and cannot verify a release.
+- Missing database quota/lease infrastructure fails closed in production.
+- Provider and database failures return neutral public errors with trace IDs; operational detail stays server-side.
+- Persisted evaluations expire after 30 days by default unless promoted into a referenced collection workflow.
 
-The in-process limiter is a development safety net; production should use a distributed limiter. Retrieval belongs behind an approved provider interface. Valuation needs an authorized sold-transaction feed. Background imports and evals should move to queues at volume.
+## Deliberate constraints
+
+- The page remains statically rendered for low latency. Its CSP therefore retains narrowly scoped inline script/style allowances required by the current Next.js output. Moving to nonce-based CSP requires dynamic rendering; that is a documented future hardening option, not silently simulated protection.
+- No automated collector-site crawler is part of the request path. Source refresh is a governed maintenance operation.
+- No valuation estimate is produced without an authorized exact completed-sales feed.
+- The system is single-owner by design. Multi-user launch requires tenant policy, consent, moderation, billing, and privacy work rather than only exposing the current routes.
+

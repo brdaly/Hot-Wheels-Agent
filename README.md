@@ -1,61 +1,55 @@
-# Hot Wheels Frontier Analyst
+# Hot Wheels Collector Intelligence
 
-An evidence-first, multimodal buyer’s agent for exact-release identification, transparent ranking, regional price discipline, proactive case hunting, and longitudinal collection intelligence.
+An owner-only, evidence-governed collector assistant for identifying exact Hot Wheels releases, recognizing chase candidates, ranking collection fit, applying price discipline, and keeping observations separate from confirmed ownership.
 
-> **Status:** production-oriented foundation. The deterministic core, multimodal contract, US retail dataset, APIs, persistence model, security boundary, tests, eval fixtures and responsive interface are implemented. External release retrieval and sold-transaction providers remain explicit integrations—not fabricated capabilities.
+> **Release status:** the application, security boundary, database migrations, tests, source register, and deployment runbook are implemented. A production instance still requires the operator to apply the Supabase migrations and configure the documented environment variables. Market values remain unknown until an authorized completed-sales source supplies exact, recent sold comparables.
 
-## Why this architecture is different
+## What it does
 
-Most collectible assistants collapse taste, scarcity, condition and price into one suspiciously precise number. This system produces four independent signals:
+- Accepts one to four JPEG, PNG, or WebP collector photos, or a typed car query.
+- Normalizes images, removes metadata, bounds resolution and bytes, and sends them through the OpenAI Responses API with structured output and `store: false`.
+- Uses the model for observations—not arithmetic, database ownership, or unverified market claims.
+- Builds a release fingerprint from year, casting/tooling, line, mix, collector number, product code, color, chase state, wheels, card, and region.
+- Fails closed when the exact release is unresolved: the result becomes **Verify first**, not a confident buy or valuation call.
+- Calculates Collection Priority Score v3.0 deterministically from named, bounded features.
+- Separates visual evidence, market evidence, condition, price, collection fit, and duplicate intent.
+- Provides an attributed 2026 TH/STH grid, with exact HWtreasure item links and Orange Track cross-checks. External images remain on the publisher’s page.
+- Uses owner-only Supabase Auth, row-level security, distributed quotas/concurrency, audit records, retention controls, and detail-free health endpoints.
 
-| Signal | Owner | Meaning |
+## Decision model
+
+| Signal | Meaning | Owner |
 |---|---|---|
-| Collection Priority Score | Deterministic TypeScript | How strongly the exact release fits the collection thesis |
-| Market Evidence Grade | Evidence rules | Strength of identity/liquidity support, not asking-price hype |
-| Condition Gate | Visual observation + rules | Whether this copy supports a sealed/carded hold |
-| Price Gate | Timestamped regional data | Whether the shelf price is strong, fair or inflated |
-
-The model extracts bounded observations. It never owns arithmetic, ownership state, or database promotion.
+| Collection Priority Score | How strongly this exact release fits the collection thesis | Deterministic TypeScript |
+| Visual Evidence Grade | How well the photos support the observed identity and condition | Evidence rules |
+| Market Evidence Grade | Number and quality of recent exact completed sales | Evidence rules; never asking prices |
+| Exact-release gate | Whether the release is specific enough for a decision | Release fingerprint policy |
+| Price gate | Whether a fresh regional shelf-price snapshot supports the price | Dated local snapshot |
+| Recommendation | Buy, wait, skip, or verify first, adjusted for owned quantity and copy intent | Deterministic policy |
 
 ```mermaid
-flowchart TD
-  A["1–4 photos"] --> B["Magic-byte + size validation"]
-  B --> C["Responses API · structured vision"]
-  C --> D["Zod observation contract"]
-  D --> E["Deterministic score + gates"]
-  E --> F["Ranked buyer verdict"]
-  E --> G["Immutable evaluation snapshot"]
-  G --> H["Human verification queue"]
-  H --> I["Canonical collection record"]
+flowchart LR
+  A[Owner photo or query] --> B[Origin, auth, quota and upload checks]
+  B --> C[Metadata-stripped image normalization]
+  C --> D[Responses API structured observations]
+  D --> E[Strict Zod contract]
+  E --> F[Release fingerprint and source cross-check]
+  F --> G[Deterministic score and gates]
+  G --> H[Ranked result and verification queue]
+  H --> I{Owner confirms?}
+  I -->|Yes| J[Owner-scoped collection record]
+  I -->|No| K[Observation only]
 ```
 
-## Implemented product surface
+## Source governance
 
-- Camera capture, gallery upload, drag/drop and autocomplete-assisted name search.
-- Multi-photo, multi-car analysis with up to 20 ranked observations; text-only analysis keeps visual claims gated.
-- Exact-release fields, chase-marker restraint, confidence and verification queue.
-- Conservative, product-line-specific case/mix inference and proactive targets.
-- Collection Priority Score v2.0 with seven bounded components.
-- Independent market, condition and regional price gates.
-- US/USD retail benchmark snapshot dated 2026-08-27.
-- Complete 2026 TH/STH visual case grid with 30 exact-release references and source attribution.
-- Supabase model for releases, evidence, collection, insights, prices, targets and audits.
-- Protected collection API, rate limiting, file-signature validation, security headers, traces and `store: false` calls.
-- Golden eval contract, regression tests and responsive Daly Ventures UI.
+The eight supplied specialist references were reviewed and distilled into a governed [source register](docs/SOURCE_REGISTER.md) and machine-readable [source catalog](data/source-catalog.json). They support discovery, casting/tooling, release-line, TH/STH, premium-chase, vocabulary, and watchlist claims within explicit freshness limits.
 
-## API
-
-| Route | Method | Purpose |
-|---|---|---|
-| `/api/analyze` | POST multipart | Analyze 0–4 images and/or a typed car query; rank supported releases |
-| `/api/score` | POST JSON | Run deterministic score and gate policy |
-| `/api/targets` | GET | Current target board and 2026 hunt map |
-| `/api/prices` | GET | US/USD retail benchmark snapshot |
-| `/api/reference-image` | GET | Allowlisted, cached relay for attributed hunt-map references |
-| `/api/collection` | GET/POST | Protected collection persistence |
-| `/api/health` | GET | Deployment health |
+They do **not** establish fair value, production quantity, live availability, or verified exact identity on their own. Future-year and incomplete entries remain provisional. Derived facts are attributed; tables, prose, affiliate prices, and images are not copied wholesale.
 
 ## Local development
+
+Requirements: Node.js 22 or newer and npm.
 
 ```bash
 cp .env.example .env.local
@@ -63,29 +57,45 @@ npm ci
 npm run dev
 ```
 
-Required for analysis: `OPENAI_API_KEY`. Optional persistence: run both SQL migrations in Supabase and configure its URL/service role. Set a high-entropy `HOTWHEELS_ADMIN_TOKEN` for collection endpoints.
+For a local UI-only session, `HOTWHEELS_DEV_AUTH_BYPASS=true` is permitted outside production. Never enable it in a shared environment. Real analysis needs `OPENAI_API_KEY`; authenticated collection use needs Supabase and the owner bootstrap described in [SECURITY.md](SECURITY.md).
+
+Apply all migrations in order:
+
+1. `001_initial.sql`
+2. `002_production_model.sql`
+3. `003_trust_safety_upgrade.sql`
+4. `004_release_evidence_model.sql`
+5. `005_analysis_concurrency.sql`
+
+## Verification
 
 ```bash
 npm run check
+npm run test:coverage
+npm audit --audit-level=high
 ```
 
-## Deployment
+`npm run check` runs lint, type checking, unit/contract tests, and a production build. See [CONTRIBUTING.md](CONTRIBUTING.md) for change rules and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for promotion and rollback.
 
-Deploy on Vercel, connect Supabase, and map `hotwheels.dalyventures.com`. Link from `dalyventures.com/fund`; keep all privileged keys server-side. Use separate staging/production projects and spend limits before public traffic.
+## API surface
 
-## Repository map
+| Route | Method | Purpose |
+|---|---|---|
+| `/api/session` | GET/POST/DELETE | Check, create, or clear the owner session |
+| `/api/analyze` | POST multipart | Analyze up to four images and/or a typed query |
+| `/api/score` | POST JSON | Apply deterministic score and decision gates |
+| `/api/collection` | GET/POST | Owner-scoped collection access |
+| `/api/targets` | GET | Versioned target and chase reference data |
+| `/api/prices` | GET | Dated regional retail snapshot |
+| `/api/health` | GET | Detail-free liveness |
+| `/api/ready` | GET | Token-protected configuration/database readiness |
 
-- `app/` — product UI and route handlers
-- `lib/` — schemas, model adapter, scoring, price policy, security and persistence
-- `data/` — versioned regional/target snapshots
-- `supabase/migrations/` — append-only schema and RLS boundary
-- `evals/` — golden agent-behavior contract
-- `tests/` — deterministic regression suite
-- `agent/` — canonical analyst doctrine
-- `docs/` — architecture, deployment, data and roadmap
+## Important boundaries
 
-## Data and IP posture
+- A photo is an observation, not proof of ownership.
+- A casting name is not an exact release. Incomplete fingerprints never merge automatically.
+- A duplicate is evaluated by its marginal role: sealed upgrade, open copy, trade copy, or unnecessary duplicate.
+- Active listings are seller expectations, not sold comparables.
+- Chase paint, wheel style, or a model suggestion alone cannot verify TH/STH/0-of-5 status.
+- The application is independent and is not affiliated with or endorsed by Mattel.
 
-No original user workbook, raw collection photo, marketplace scrape, Mattel artwork or third-party database dump is committed. The chase grid hotlinks third-party release references with direct source attribution and a local unavailable-image fallback; it does not redistribute those image files. Seed JSON contains derived research with dates and provenance. Sold transactions—not active listings—must support value claims.
-
-Collection priority is not a return forecast. This independent project is not affiliated with or endorsed by Mattel.
