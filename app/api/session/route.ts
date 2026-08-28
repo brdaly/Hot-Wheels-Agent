@@ -7,6 +7,7 @@ import {
   trustedClientIp,
 } from "../../../lib/security";
 import { consumeDistributedRateLimit } from "../../../lib/security/distributed-rate-limit";
+import { readLimitedJsonBody } from "../../../lib/security/request-body";
 import {
   authenticateOwner,
   clearOwnerSessionCookie,
@@ -16,6 +17,8 @@ import {
 } from "../../../lib/security/owner-session";
 
 export const runtime = "nodejs";
+
+const MAX_CREDENTIAL_BODY_BYTES = 4_096;
 
 const Credentials = z.object({
   email: z.string().trim().email().max(254),
@@ -35,10 +38,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Request rejected" }, { status: 403, headers: NO_STORE_HEADERS });
   }
   const contentLength = Number(request.headers.get("content-length") ?? 0);
-  if (Number.isFinite(contentLength) && contentLength > 4_096) {
+  if (Number.isFinite(contentLength) && contentLength > MAX_CREDENTIAL_BODY_BYTES) {
     return NextResponse.json({ error: "Request rejected" }, { status: 413, headers: NO_STORE_HEADERS });
   }
-
   const rate = await consumeDistributedRateLimit({
     scope: "owner_sign_in",
     subject: trustedClientIp(request.headers),
@@ -59,10 +61,14 @@ export async function POST(request: NextRequest) {
   }
 
   const accessToken = bearerToken(request.headers.get("authorization"));
+  const credentialsBody = accessToken ? null : await readLimitedJsonBody(request, MAX_CREDENTIAL_BODY_BYTES);
+  if (credentialsBody && !credentialsBody.ok && credentialsBody.reason === "too_large") {
+    return NextResponse.json({ error: "Request rejected" }, { status: 413, headers: NO_STORE_HEADERS });
+  }
   const identity = accessToken
     ? await verifyOwnerAccessToken(accessToken)
     : await (async () => {
-        const parsed = Credentials.safeParse(await request.json().catch(() => null));
+        const parsed = Credentials.safeParse(credentialsBody?.ok ? credentialsBody.value : null);
         return parsed.success
           ? signInOwnerWithPassword(parsed.data.email, parsed.data.password)
           : { authenticated: false as const, status: 401 as const };

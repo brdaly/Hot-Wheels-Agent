@@ -3,7 +3,10 @@ import { z } from "zod";
 import { isAllowedOrigin, NO_STORE_HEADERS } from "@/lib/security";
 import { consumeDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
 import { authenticateOwner, createOwnerDataClient } from "@/lib/security/owner-session";
+import { readLimitedJsonBody } from "@/lib/security/request-body";
 import { recordAuditEvent } from "@/lib/db";
+
+const MAX_COLLECTION_BODY_BYTES = 8_192;
 
 const Input = z.object({
   release_id: z.string().uuid().nullable().optional(),
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
   const auth = await owner(request);
   if (!auth.identity) return auth.response;
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
-  if (Number.isFinite(declaredLength) && declaredLength > 8_192) {
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_COLLECTION_BODY_BYTES) {
     return NextResponse.json({ error: "Collection item is too large" }, { status: 413, headers: NO_STORE_HEADERS });
   }
   const rate = await consumeDistributedRateLimit({
@@ -59,7 +62,11 @@ export async function POST(request: NextRequest) {
   if (!rate.available) return NextResponse.json({ error: "Collection updates are temporarily unavailable" }, { status: 503, headers: NO_STORE_HEADERS });
   if (!rate.allowed) return NextResponse.json({ error: "Too many collection updates" }, { status: 429, headers: { ...NO_STORE_HEADERS, "Retry-After": String(rate.retryAfterSeconds) } });
 
-  const parsed = Input.safeParse(await request.json().catch(() => null));
+  const body = await readLimitedJsonBody(request, MAX_COLLECTION_BODY_BYTES);
+  if (!body.ok && body.reason === "too_large") {
+    return NextResponse.json({ error: "Collection item is too large" }, { status: 413, headers: NO_STORE_HEADERS });
+  }
+  const parsed = Input.safeParse(body.ok ? body.value : null);
   if (!parsed.success) return NextResponse.json({ error: "Invalid collection item" }, { status: 400, headers: NO_STORE_HEADERS });
   const db = createOwnerDataClient(auth.identity);
   const { data, error } = await db.from("collection_items")
