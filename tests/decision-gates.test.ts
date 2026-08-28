@@ -15,8 +15,24 @@ describe("separate evidence and decision gates", () => {
     expect(marketEvidenceGrade(ferrari, new Date("2026-08-28T12:00:00Z"))).toBe("U");
   });
 
-  it("requires five recent exact completed sales for market grade A", () => {
-    expect(marketEvidenceGrade(withExactSoldComps(ferrari, 5), new Date("2026-08-28T12:00:00Z"))).toBe("A");
+  it("rejects caller-supplied comps without verified provider provenance", () => {
+    expect(marketEvidenceGrade(withExactSoldComps(ferrari, 5), new Date("2026-08-28T12:00:00Z"))).toBe("U");
+  });
+
+  it("grades only verified comps with matching currency, packaging, and condition", () => {
+    const observation = withExactSoldComps(ferrari, 6);
+    const comps = observation.marketEvidence.exactSoldComps.map((comp, index) => ({
+      ...comp,
+      provider: "licensed-sales-adapter",
+      providerVerified: true as const,
+      currency: index === 5 ? "EUR" as const : comp.currency,
+    }));
+    expect(marketEvidenceGrade(observation, new Date("2026-08-28T12:00:00Z"), {
+      comps,
+      targetCurrency: "USD",
+      targetPackaging: "sealed",
+      targetCondition: "carded excellent",
+    })).toBe("A");
   });
 
   it("hard-gates a low-confidence identity regardless of score", () => {
@@ -40,5 +56,13 @@ describe("separate evidence and decision gates", () => {
     const provisional = { ...ferrari.identification, colorOrLivery: null, productCode: null, collectorNumber: null };
     expect(releaseFingerprint(provisional).status).toBe("provisional");
     expect(exactReleaseGate({ ...ferrari, identification: provisional }).ready).toBe(false);
+  });
+
+  it("provides equivalent aliases when both release identifiers are known", () => {
+    const both = releaseFingerprint(ferrari.identification);
+    const productOnly = releaseFingerprint({ ...ferrari.identification, collectorNumber: null });
+    const collectorOnly = releaseFingerprint({ ...ferrari.identification, productCode: null });
+    expect(both.aliases).toContain(productOnly.key);
+    expect(both.aliases).toContain(collectorOnly.key);
   });
 });

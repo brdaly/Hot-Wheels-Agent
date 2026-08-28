@@ -44,9 +44,8 @@ export async function ownedQuantitiesByFingerprint(fingerprints: string[], owner
   if (!db) return {} as Record<string, number>;
   let query = db
     .from("collection_items")
-    .select("quantity,ownership_status,releases!inner(release_fingerprint)")
+    .select("quantity,ownership_status,releases!inner(release_fingerprint,release_fingerprint_aliases)")
     .eq("ownership_status", "owned")
-    .in("releases.release_fingerprint", unique)
     .limit(500);
   if (ownerId) query = query.eq("owner_id", ownerId);
   const { data, error } = await query;
@@ -54,10 +53,14 @@ export async function ownedQuantitiesByFingerprint(fingerprints: string[], owner
   const quantities: Record<string, number> = {};
   for (const item of data ?? []) {
     const release = Array.isArray(item.releases) ? item.releases[0] : item.releases;
-    const key = release && typeof release === "object" && "release_fingerprint" in release
-      ? String(release.release_fingerprint ?? "")
-      : "";
-    if (key) quantities[key] = (quantities[key] ?? 0) + Number(item.quantity ?? 0);
+    if (!release || typeof release !== "object") continue;
+    const aliases = "release_fingerprint_aliases" in release && Array.isArray(release.release_fingerprint_aliases)
+      ? release.release_fingerprint_aliases.map(String)
+      : [];
+    const stored = "release_fingerprint" in release ? String(release.release_fingerprint ?? "") : "";
+    for (const key of new Set([stored, ...aliases].filter((candidate) => unique.includes(candidate)))) {
+      quantities[key] = (quantities[key] ?? 0) + Number(item.quantity ?? 0);
+    }
   }
   return quantities;
 }

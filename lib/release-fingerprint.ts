@@ -1,6 +1,6 @@
 import type { Identification } from "./analysis-schema";
 
-export const RELEASE_FINGERPRINT_VERSION = "release-fingerprint-v1";
+export const RELEASE_FINGERPRINT_VERSION = "release-fingerprint-v2";
 
 const clean = (value: string | number | null | undefined) =>
   value == null
@@ -15,8 +15,6 @@ export function releaseFingerprint(identification: Identification) {
     tooling: identification.tooling,
     line: identification.line,
     seriesOrMix: identification.seriesOrMix,
-    collectorNumber: identification.collectorNumber,
-    productCode: identification.productCode,
     colorOrLivery: identification.colorOrLivery,
     chaseStatus: identification.chaseStatus,
     wheelType: identification.wheelType,
@@ -32,12 +30,15 @@ export function releaseFingerprint(identification: Identification) {
   }
   if (identification.chaseStatus === "unknown") missing.push("chaseStatus");
   if (!identification.productCode && !identification.collectorNumber) missing.push("productCodeOrCollectorNumber");
-  const key = [
-    RELEASE_FINGERPRINT_VERSION,
-    ...Object.entries(fields).map(([name, value]) => `${name}:${clean(value)}`),
-  ].join("|");
+  const prefix = [RELEASE_FINGERPRINT_VERSION, ...Object.entries(fields).map(([name, value]) => `${name}:${clean(value)}`)];
+  const identifiers = [
+    identification.productCode && `productCode:${clean(identification.productCode)}`,
+    identification.collectorNumber && `collectorNumber:${clean(identification.collectorNumber)}`,
+  ].filter((value): value is string => Boolean(value));
+  const aliases = identifiers.map((identifier) => [...prefix, `identifier:${identifier}`].join("|"));
   return {
-    key,
+    key: aliases[0] ?? [...prefix, "identifier:unknown"].join("|"),
+    aliases,
     status: missing.length === 0 ? "exact" as const : "provisional" as const,
     missing: [...new Set(missing)],
   };
