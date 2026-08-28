@@ -21,7 +21,7 @@ export function classifyAnalysisError(error: unknown): PublicAnalysisError {
   if (status === 401 || name === "AuthenticationError") {
     return {
       code: "openai_authentication_failed",
-      message: "OpenAI authentication failed. Replace OPENAI_API_KEY in Vercel and redeploy.",
+      message: "The analysis service is temporarily unavailable.",
       status: 503,
     };
   }
@@ -31,8 +31,8 @@ export function classifyAnalysisError(error: unknown): PublicAnalysisError {
     return {
       code: quota ? "openai_quota_unavailable" : "openai_rate_limited",
       message: quota
-        ? "OpenAI API billing or quota is unavailable. Check the API project billing settings and retry."
-        : "The analysis service is temporarily rate limited. Wait briefly and retry.",
+        ? "Analysis capacity is temporarily unavailable."
+        : "The analysis service is busy. Wait briefly and retry.",
       status: quota ? 503 : 429,
     };
   }
@@ -40,7 +40,7 @@ export function classifyAnalysisError(error: unknown): PublicAnalysisError {
   if (status === 404 || code === "model_not_found") {
     return {
       code: "openai_model_unavailable",
-      message: "The configured OpenAI model is unavailable to this API project. Check OPENAI_MODEL in Vercel.",
+      message: "The analysis service is temporarily unavailable.",
       status: 503,
     };
   }
@@ -48,7 +48,7 @@ export function classifyAnalysisError(error: unknown): PublicAnalysisError {
   if (status === 400) {
     return {
       code: "openai_request_rejected",
-      message: "The model provider rejected the analysis request. Use the trace ID to inspect the Vercel log.",
+      message: "The supplied evidence could not be processed. Try a smaller or clearer image.",
       status: 502,
     };
   }
@@ -56,14 +56,14 @@ export function classifyAnalysisError(error: unknown): PublicAnalysisError {
   if (name === "APIConnectionError" || name === "APIConnectionTimeoutError") {
     return {
       code: "openai_unreachable",
-      message: "The analysis provider did not respond. Retry once; if it persists, inspect the Vercel log.",
+      message: "The analysis service did not respond. Wait briefly and retry.",
       status: 503,
     };
   }
 
   return {
     code: "analysis_failed",
-    message: "Unable to complete the analysis. Use the trace ID to inspect the Vercel log.",
+    message: "Unable to complete the analysis. Please retry with the trace ID available for support.",
     status: 500,
   };
 }

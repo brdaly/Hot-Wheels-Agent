@@ -1,36 +1,37 @@
 # Delivery roadmap
 
-## Phase 1 — Private analyst MVP
+## Delivered in the current release
 
-- Owner-only photo analysis.
-- Single-car exact-release candidate, confidence, score, and recommendation.
-- Observation/owned separation and admin verification queue.
-- Initial import of Brendan's workbooks after reconciliation.
-- Deployment to a private preview subdomain.
+- Owner sign-in and RLS-scoped collection access.
+- Bounded multimodal analysis with metadata-stripping normalization.
+- Strict analysis contract and deterministic Collection Priority Score v3.0.
+- Exact-release fingerprinting, verify-first gate, and duplicate-aware recommendations.
+- Separate visual, market, condition, and dated regional price evidence.
+- Governed eight-source catalog, freshness rules, source attribution, and link-only media policy.
+- Corrected 2026 TH/STH case map with exact HWtreasure item pages.
+- Distributed hourly/daily limits and concurrent-analysis leases.
+- Opt-in 30-day evaluation persistence, usage/audit records, health/readiness routes, hardened headers, tests, and CI.
+- Responsive, keyboard-aware collector interface with clear uncertainty and source state.
 
-## Phase 2 — Store-photo intelligence
+## Next: controlled private operations
 
-- Detect and rank every visible car in a peg/bin photo.
-- Infer mainline case or premium mix with confidence.
-- Return STH, TH, premium chase, and companion targets likely nearby.
-- Compare against owned collection and duplicate/open-card rules.
+- Apply migrations and complete preview/production owner bootstrap.
+- Add licensed, exact completed-sale data behind a provider interface.
+- Build a human verification queue that promotes observations into canonical releases.
+- Add an approved, versioned source-refresh job with contradiction/supersession reporting.
+- Add rights-cleared image fixtures for live vision regression tests.
+- Calibrate score thresholds against Brendan’s confirmed keep/open/duplicate decisions.
+- Add backup restore drills, cost dashboards, WAF rules, and an independent security review.
 
-## Phase 3 — Market and collection platform
+## Later: collection intelligence
 
-- Approved sold-transaction data and time-stamped valuation ranges.
-- Collection dashboard, wish list, duplicates, trade/sell queue, and insurance export.
-- Personal-fit profiles and international cards/currencies.
-- Scheduled source refreshes and confidence decay.
+- Collection dashboard, wish list, duplicate/open-card/trade queue, and insurance export.
+- Exact-release import and reconciliation from private workbooks without committing originals.
+- Authorized market trends, liquidity windows, and valuation history.
+- International card, currency, tax, and retailer profiles with no implicit conversion.
+- Store/case observation history with confidence decay and corrections.
 
-## Phase 4 — Public Super Analyst
+## Public-product gate
 
-- User accounts, quotas, subscriptions, moderation, and privacy controls.
-- Community corrections with reviewer approval and source provenance.
-- Regression evals for exact identification, chase classification, score consistency, and case inference.
-- Public API and embeddable Daly Ventures result cards.
+Do not convert this single-owner system into a public app without tenant isolation, consent/age/privacy terms, deletion/export flows, moderation, subscriptions/quotas, abuse review, support/takedown paths, accessibility validation, licensed data/media, and a fresh threat model.
 
-## Release gates
-
-- No public launch without authentication/rate limiting, spend caps, privacy terms, source-use review, monitoring, and backups.
-- No valuation label without transaction evidence and capture date.
-- No verified badge without exact-release evidence and reviewer approval.

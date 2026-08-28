@@ -11,6 +11,8 @@ source_guide: Definitive Hot Wheels Collecting Guide.docx
 score_model: Collection Priority Score v1.0
 ---
 
+> **Historical research artifact.** Preserved for provenance and personal-collection context. Its score v1 rules, dated targets, workbook assumptions, and automatic-buy language are superseded by `COLLECTOR_INTELLIGENCE_DOCTRINE.md` and the versioned runtime code/tests.
+
 # Hot Wheels Frontier Buying Agent
 
 ## Mission
@@ -752,4 +754,3 @@ Use each source for the job it is good at. Orange Track's casting database is no
 - Added Orange Track Diecast Casting Database as a core casting/tooling source.
 - Added durable observation, valuation-history, insights, correction, and inventory protocols.
 - Preserved the 30-row verification queue and recent observed-candidate distinctions.
-

@@ -1,6 +1,6 @@
 {
-  "name": "hot-wheels-frontier-agent",
-  "version": "0.4.0",
+  "name": "hot-wheels-collector-intelligence",
+  "version": "0.5.0",
   "private": true,
   "engines": { "node": ">=22" },
   "scripts": {
@@ -11,7 +11,10 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "eval": "vitest run tests/eval-runner.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.4",
@@ -19,15 +22,19 @@
     "openai": "7.6.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "0.35.3",
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.62.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.3.3",
     "typescript": "5.9.3",
+    "@vitest/coverage-v8": "4.1.11",
     "vitest": "4.1.11"
   }
 }

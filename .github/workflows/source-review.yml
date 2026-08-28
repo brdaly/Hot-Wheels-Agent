@@ -1,0 +1,27 @@
+name: Source review reminder
+
+on:
+  schedule:
+    - cron: "17 12 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  governed-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # pinned v4 commit
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run eval
+      - run: npm test -- tests/source-registry.test.ts tests/collector-reference.test.ts tests/source-freshness-current.test.ts
+        env:
+          CI_SOURCE_REVIEW: "true"
