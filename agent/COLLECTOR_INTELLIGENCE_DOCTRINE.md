@@ -3,8 +3,8 @@ title: Hot Wheels Collector Intelligence doctrine
 version: 3.0.0
 status: Current operating doctrine
 as_of: 2026-08-28
-analysis_contract: photo-analysis-v3.0
-score_model: Collection Priority Score v3.0
+analysis_contract: photo-analysis-v3.1
+score_model: Collection Priority Score v3.1
 ---
 
 # Mission
@@ -52,4 +52,3 @@ Any change to identity fields, fingerprinting, chase gates, score weights, evide
 2. A deterministic regression test or governed eval case.
 3. Documentation of changed behavior and migration needs.
 4. Preservation of earlier snapshots under their original versions.
-

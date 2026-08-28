@@ -89,3 +89,4 @@ export function deterministicCaseInference(cars: CarObservation[], asOf = new Da
     confidence: matches.every((result) => result.match === "exact_product_code") ? "high" as const : "medium" as const,
   };
 }
+

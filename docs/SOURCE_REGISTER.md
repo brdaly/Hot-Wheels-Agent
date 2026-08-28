@@ -43,6 +43,10 @@ The **Observed coverage** column records what was visible at retrieval. The **Us
 - Do not treat Amazon, eBay, or retailer affiliate links as identity authority, availability evidence, or sold-market evidence.
 - Names, product codes, years, set numbers, and other facts may be normalized, but the source's selection, arrangement, photographs, and original wording must not be reproduced wholesale.
 
+These source entries are not media licenses. “Official,” publisher attribution, a visible copyright notice, a non-affiliation disclosure, or another shop's use does not authorize copying. Background removal, cropping, tracing, animation, or generative restyling does not convert an unlicensed source photograph or package design into an approved asset.
+
+If a source publisher or photographer grants written permission, register it through migration `006` as a separate governed media asset. Confirm that the grantor owns or can sublicense the exact photograph, pin the reviewed release fingerprint, and record the allowed channels, transformations, attribution, term, territory, and takedown contact privately. V1 may publish only a normalized worldwide grant; keep regional permissions review-only until trusted territory-aware delivery exists. The public manifest receives only sanitized display metadata, a coarse worldwide-eligibility marker, and metadata-stripped derivatives. Until approval, retain only the canonical page link and use the local placeholder.
+
 ## Review workflow
 
 1. Open the canonical URL directly and record the retrieval date and any visible source update date.

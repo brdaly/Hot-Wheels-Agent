@@ -12,6 +12,7 @@ import { classifyAnalysisError } from "@/lib/operational-errors";
 import { evaluateUSPrice, resolveItemPrice } from "@/lib/pricing";
 import { releaseFingerprint } from "@/lib/release-fingerprint";
 import {
+  comparableExactCompCount,
   exactReleaseGate,
   marketEvidenceGrade,
   recommendationFor,
@@ -158,6 +159,7 @@ export async function POST(request: NextRequest) {
         ...car,
         marketEvidence: {
           exactSoldComps: [],
+          comparisonCurrency: null,
           notes: [...car.marketEvidence.notes, "Model-stage market claims are not accepted as completed-sale evidence."].slice(0, 6),
         },
       })),
@@ -168,7 +170,7 @@ export async function POST(request: NextRequest) {
     let collectionWarning: string | null = null;
     try {
       ownedQuantities = await ownedQuantitiesByFingerprint(
-        fingerprints.flatMap((item) => item.aliases.length ? item.aliases : [item.key]),
+        fingerprints.flatMap((item) => item.status === "exact" ? item.aliases : []),
         identity.developmentBypass ? undefined : identity.userId,
       );
     } catch (error) {
@@ -186,7 +188,9 @@ export async function POST(request: NextRequest) {
       const priceGate = evaluateUSPrice(observation.identification.category, itemPrice.amount, itemPrice.currency);
       const releaseGate = exactReleaseGate(observation);
       const recommendation = recommendationFor(observation, score.total, {
-        ownedQuantity: Math.max(...fingerprint.aliases.map((alias) => ownedQuantities[alias] ?? 0), ownedQuantities[fingerprint.key] ?? 0),
+        ownedQuantity: fingerprint.status === "exact"
+          ? Math.max(0, ...fingerprint.aliases.map((alias) => ownedQuantities[alias] ?? 0))
+          : 0,
         copyIntent: parsed.data.copyIntent,
       });
       const referenceMatch = findChaseReference(observation.identification);
@@ -221,6 +225,7 @@ export async function POST(request: NextRequest) {
         decisionReady: releaseGate.ready,
         visualEvidenceGrade: visualEvidenceGrade(observation),
         marketEvidenceGrade: marketEvidenceGrade(observation),
+        marketEvidenceCount: comparableExactCompCount(observation),
         recommendation,
         itemPrice,
         priceGate,
