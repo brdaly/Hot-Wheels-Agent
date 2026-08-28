@@ -12,6 +12,7 @@ import { classifyAnalysisError } from "@/lib/operational-errors";
 import { evaluateUSPrice, resolveItemPrice } from "@/lib/pricing";
 import { releaseFingerprint } from "@/lib/release-fingerprint";
 import {
+  comparableExactCompCount,
   exactReleaseGate,
   marketEvidenceGrade,
   recommendationFor,
@@ -158,6 +159,7 @@ export async function POST(request: NextRequest) {
         ...car,
         marketEvidence: {
           exactSoldComps: [],
+          comparisonCurrency: null,
           notes: [...car.marketEvidence.notes, "Model-stage market claims are not accepted as completed-sale evidence."].slice(0, 6),
         },
       })),
@@ -221,6 +223,7 @@ export async function POST(request: NextRequest) {
         decisionReady: releaseGate.ready,
         visualEvidenceGrade: visualEvidenceGrade(observation),
         marketEvidenceGrade: marketEvidenceGrade(observation),
+        marketEvidenceCount: comparableExactCompCount(observation),
         recommendation,
         itemPrice,
         priceGate,

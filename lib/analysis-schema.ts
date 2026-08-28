@@ -4,7 +4,7 @@ const shortText = z.string().trim().min(1).max(120);
 const optionalShortText = z.string().trim().min(1).max(120).nullable();
 const evidenceText = z.string().trim().min(1).max(240);
 
-export const ANALYSIS_CONTRACT_VERSION = "photo-analysis-v3.0";
+export const ANALYSIS_CONTRACT_VERSION = "photo-analysis-v3.1";
 
 export const ChaseStatusSchema = z.enum([
   "none",
@@ -18,6 +18,40 @@ export const ChaseStatusSchema = z.enum([
 ]);
 
 export const ConfidenceSchema = z.enum(["high", "medium", "low"]);
+
+/**
+ * `null` means a cue was not assessed from the supplied evidence. Once a cue
+ * is assessed, its state must distinguish a visible indicator from a visible
+ * absence and an image that cannot resolve the question.
+ */
+export const EvidenceStateSchema = z.enum(["observed", "absent", "unclear"]);
+
+export const EvidenceCropSourceSchema = z.enum([
+  "full_card_front",
+  "full_card_back",
+  "card_corner_detail",
+  "j_hook_detail",
+  "blister_detail",
+  "vehicle_base_detail",
+  "full_vehicle",
+  "typed_text",
+  "unknown",
+]);
+
+export const VisualCueSchema = z.object({
+  state: EvidenceStateSchema,
+  evidence: evidenceText.nullable(),
+  cropSource: EvidenceCropSourceSchema.nullable(),
+}).strict();
+
+export const BaseCodeObservationSchema = z.object({
+  state: EvidenceStateSchema,
+  rawText: z.string().trim().min(1).max(40).nullable(),
+  normalizedText: z.string().trim().min(1).max(24).nullable(),
+  confidence: ConfidenceSchema.nullable(),
+  cropSource: EvidenceCropSourceSchema.nullable(),
+  evidence: evidenceText.nullable(),
+}).strict();
 
 export const ProductCategorySchema = z.enum([
   "mainline_single",
@@ -127,10 +161,13 @@ export const SoldCompSchema = z.object({
   matchQuality: z.enum(["exact", "near", "unknown"]),
   condition: shortText,
   packaging: shortText,
+  conditionComparable: z.boolean().nullish(),
+  packagingComparable: z.boolean().nullish(),
 }).strict();
 
 export const MarketEvidenceSchema = z.object({
   exactSoldComps: z.array(SoldCompSchema).max(12),
+  comparisonCurrency: z.enum(["EUR", "USD", "GBP", "CAD", "AUD"]).nullish(),
   notes: z.array(evidenceText).max(6),
 }).strict();
 
@@ -149,6 +186,15 @@ export const ConditionSchema = z.object({
   card: z.array(evidenceText).max(6),
   blister: z.array(evidenceText).max(6),
   visibleError: z.string().trim().min(1).max(240).nullable(),
+  cues: z.object({
+    cardCrease: VisualCueSchema.nullable(),
+    cardCornerDamage: VisualCueSchema.nullable(),
+    jHookDamage: VisualCueSchema.nullable(),
+    blisterCrack: VisualCueSchema.nullable(),
+    blisterDent: VisualCueSchema.nullable(),
+    blisterLift: VisualCueSchema.nullable(),
+    possibleResealIndicators: VisualCueSchema.nullable(),
+  }).strict().nullish(),
 }).strict();
 
 export const PriceObservationSchema = z.object({
@@ -163,6 +209,7 @@ export const CarObservationSchema = z.object({
   decisionFeatures: DecisionFeaturesSchema,
   marketEvidence: MarketEvidenceSchema,
   condition: ConditionSchema,
+  baseCodeObservation: BaseCodeObservationSchema.nullish(),
   priceObservation: PriceObservationSchema,
   evidenceObserved: z.array(evidenceText).max(16),
   verificationNeeded: z.array(evidenceText).max(12),
@@ -199,6 +246,7 @@ export type CarObservation = z.infer<typeof CarObservationSchema>;
 export type PhotoAnalysis = z.infer<typeof PhotoAnalysisSchema>;
 export type ScoreComponents = z.infer<typeof ComponentSchema>;
 export type ConditionGrade = z.infer<typeof ConditionSchema>["grade"];
+export type ConditionObservation = z.infer<typeof ConditionSchema>;
 export type ProductCategory = z.infer<typeof ProductCategorySchema>;
 export type CopyIntent = z.infer<typeof AnalyzeOptionsSchema>["copyIntent"];
 export type Analysis = CarObservation;

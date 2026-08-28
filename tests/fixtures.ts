@@ -38,6 +38,7 @@ export function withExactSoldComps(observation = ferrari, count = 5): CarObserva
   return {
     ...observation,
     marketEvidence: {
+      comparisonCurrency: "USD",
       notes: [],
       exactSoldComps: Array.from({ length: count }, (_, index) => ({
         sourceUrl: `https://example.com/sold/${index + 1}`,
@@ -47,6 +48,8 @@ export function withExactSoldComps(observation = ferrari, count = 5): CarObserva
         matchQuality: "exact" as const,
         condition: "carded excellent",
         packaging: "sealed",
+        conditionComparable: true,
+        packagingComparable: true,
       })),
     },
   };

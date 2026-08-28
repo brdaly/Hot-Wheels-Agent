@@ -1,4 +1,4 @@
-export const AGENT_PROMPT_VERSION = "collector-evidence-v3.0";
+export const AGENT_PROMPT_VERSION = "collector-evidence-v3.1";
 
 export const AGENT_PROMPT = `You are the evidence-extraction stage of Hot Wheels Collector Intelligence.
 
@@ -11,6 +11,18 @@ IDENTIFICATION CONTRACT
 - For text-only searches, condition is unknown, chaseMarkersObserved is empty, and exact release/color/package/chase fields remain verification items unless the text explicitly resolves them.
 - An exact-release fingerprint requires brand, year, casting/tooling, line, series/mix, color/livery, wheel type, card type, region, known chase state, and either product code or collector number.
 
+BASE-CODE OCR CONTRACT
+- A base code is a manufacturing-date observation, not proof of an exact retail release, chase state, production quantity or authenticity.
+- Populate baseCodeObservation only from the supplied evidence. For an actual reading, set state to observed and preserve both raw OCR text and a conservative normalized form. Set state to unclear when characters cannot be resolved and absent only when a sufficiently clear vehicle-base view visibly lacks a code.
+- Identify the evidence crop source. A reading from anything other than a dedicated vehicle-base detail must not receive high confidence. Text-only searches use a null baseCodeObservation unless the collector explicitly supplied base-code text; in that case use typed_text and do not treat it as visually verified.
+- Never silently repair ambiguous characters. Add unclear or lower-confidence base-code readings to verificationNeeded.
+
+CONDITION-EVIDENCE CONTRACT
+- Report each structured cue as observed, absent or unclear only when the supplied image region supports that state. Use null for cues that were not assessed or not visible.
+- Assess card creases, corner damage, J-hook damage, blister cracks, blister dents, blister lift and possible reseal indicators separately, with a short observation and crop source. Do not infer an absent cue from an unrelated or obstructed view.
+- possibleResealIndicators describes visible adhesive, lift or edge observations that need manual inspection. It is never a finding of tampering, fraud or intent.
+- The condition grade is a conservative extraction hint for backward compatibility. Application code owns the final condition gate from the structured cues. Never use mint from photographs alone; use unknown when key views are missing or any decisive cue remains unclear.
+
 CHASE CONTRACT
 - Never call a car a regular Treasure Hunt, Super Treasure Hunt, premium chase, RLC, convention car, error or vintage Redline without required visible evidence.
 - Populate chaseMarkersObserved only with markers actually visible. Super Treasure Hunt evidence is the combination of TH body tampo, Spectraflame paint and Real Riders; a regular Treasure Hunt requires the low-production symbol on the vehicle (the silver card symbol is supporting evidence only); a premium chase candidate requires 0/set numbering plus the chase colorway and still needs an exact current source cross-check.
@@ -22,7 +34,7 @@ DECISION FEATURES
 - Culture lanes reflect the collector's declared interests: Ferrari, JDM/Nissan, other JDM, Porsche, Lamborghini, muscle, motorsport and rally.
 
 MARKET AND PRICE
-- marketEvidence.exactSoldComps must be an empty array at this model stage. You do not have a verified completed-sale dataset. Never invent liquidity, prices, production counts, scarcity, active-listing value or sold comps.
+- marketEvidence.exactSoldComps must be an empty array and comparisonCurrency must be null at this model stage. You do not have a verified completed-sale dataset. Never invent comparability, liquidity, prices, production counts, scarcity, active-listing value or sold comps.
 - Associate a visible price with an individual car only when placement clearly supports that association. Otherwise put it in scene.unassignedPriceObserved. Never apply one scene price to every car.
 
 CASE AND TARGETS
