@@ -35,16 +35,33 @@ export function tierFor(score: number) {
   return "D";
 }
 
-function recentExactCompCount(observation: CarObservation, now = new Date()) {
+type SoldComp = CarObservation["marketEvidence"]["exactSoldComps"][number];
+
+export type VerifiedMarketEvidence = {
+  /** Populated only by an authorized provider adapter after source verification. */
+  comps: Array<SoldComp & { provider: string; providerVerified: true }>;
+  targetCurrency: SoldComp["currency"];
+  targetPackaging: string;
+  targetCondition: string;
+};
+
+const comparableText = (value: string) => value.normalize("NFKC").trim().toLowerCase();
+
+function recentExactCompCount(evidence: VerifiedMarketEvidence | undefined, now = new Date()) {
+  if (!evidence) return 0;
   const cutoff = now.getTime() - MARKET_EVIDENCE_WINDOW_DAYS * 86_400_000;
-  return observation.marketEvidence.exactSoldComps.filter((comp) => {
+  return evidence.comps.filter((comp) => {
     const soldAt = Date.parse(`${comp.soldAt}T00:00:00Z`);
-    return comp.matchQuality === "exact" && Number.isFinite(soldAt) && soldAt >= cutoff && soldAt <= now.getTime();
+    return comp.providerVerified === true && Boolean(comp.provider.trim()) &&
+      comp.matchQuality === "exact" && comp.currency === evidence.targetCurrency &&
+      comparableText(comp.packaging) === comparableText(evidence.targetPackaging) &&
+      comparableText(comp.condition) === comparableText(evidence.targetCondition) &&
+      Number.isFinite(soldAt) && soldAt >= cutoff && soldAt <= now.getTime();
   }).length;
 }
 
-export function marketEvidenceGrade(observation: CarObservation, now = new Date()) {
-  const count = recentExactCompCount(observation, now);
+export function marketEvidenceGrade(_observation: CarObservation, now = new Date(), evidence?: VerifiedMarketEvidence) {
+  const count = recentExactCompCount(evidence, now);
   if (count >= 5) return "A";
   if (count >= 3) return "B";
   if (count >= 1) return "C";
@@ -126,7 +143,7 @@ export function conditionGate(grade: ConditionGrade, score: number) {
   return { status: "pass", label: "Condition supports a carded hold" } as const;
 }
 
-function deriveComponents(observation: CarObservation, now = new Date()) {
+function deriveComponents(observation: CarObservation, now = new Date(), evidence?: VerifiedMarketEvidence) {
   const features = observation.decisionFeatures;
   const chase = chaseVerification(observation, now);
   const fingerprint = releaseFingerprint(observation.identification);
@@ -159,7 +176,7 @@ function deriveComponents(observation: CarObservation, now = new Date()) {
   const cultureStory = Math.min(15, coreCount ? 13 + Math.min(2, coreCount - 1) : secondaryCount ? 10 + Math.min(3, secondaryCount - 1) : lanes.has("other") ? 4 : 0);
   const personalFit = coreCount ? 10 : secondaryCount ? 8 : lanes.has("other") ? 3 : 0;
 
-  const compCount = recentExactCompCount(observation, now);
+  const compCount = recentExactCompCount(evidence, now);
   const marketLiquidity = compCount >= 8 ? 10 : compCount >= 5 ? 8 : compCount >= 3 ? 6 : compCount >= 1 ? 3 : 0;
   const critical = criticalVerificationItems(observation);
   const riskClarity = observation.identification.confidence === "high" && fingerprint.status === "exact" && critical.length === 0
@@ -182,8 +199,8 @@ function deriveComponents(observation: CarObservation, now = new Date()) {
   return { components, componentReasons };
 }
 
-export function scoreObservation(observation: CarObservation, now = new Date()) {
-  const { components, componentReasons } = deriveComponents(observation, now);
+export function scoreObservation(observation: CarObservation, now = new Date(), evidence?: VerifiedMarketEvidence) {
+  const { components, componentReasons } = deriveComponents(observation, now, evidence);
   const total = totalScore(components);
   return { total, tier: tierFor(total), components, componentReasons, modelVersion: SCORE_MODEL_VERSION };
 }
@@ -193,9 +210,10 @@ export function recommendationFor(
   score: number,
   context: { ownedQuantity?: number; copyIntent?: CopyIntent } = {},
   now = new Date(),
+  evidence?: VerifiedMarketEvidence,
 ) {
   const exact = exactReleaseGate(observation, now);
-  const marketGrade = marketEvidenceGrade(observation, now);
+  const marketGrade = marketEvidenceGrade(observation, now, evidence);
   const ownedQuantity = Math.max(0, context.ownedQuantity ?? 0);
   const copyIntent = context.copyIntent ?? "unspecified";
   let decision: string;

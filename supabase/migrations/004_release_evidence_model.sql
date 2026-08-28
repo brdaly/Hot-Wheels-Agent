@@ -5,6 +5,67 @@ alter table evaluations
 alter table releases add column if not exists tooling text;
 alter table releases add column if not exists region text;
 alter table releases add column if not exists release_fingerprint text;
+alter table releases add column if not exists release_fingerprint_aliases text[] not null default '{}';
+
+create or replace function release_fingerprint_token(value text)
+returns text
+language sql
+immutable
+set search_path = public
+as $$
+  select coalesce(nullif(trim(both '-' from regexp_replace(lower(coalesce(value, '')), '[^a-z0-9]+', '-', 'g')), ''), 'unknown');
+$$;
+
+create or replace function maintain_release_fingerprint()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  casting_name text;
+  prefix text;
+  aliases text[] := '{}';
+begin
+  select name into casting_name from castings where id = new.casting_id;
+  -- Legacy releases predate tooling/region capture. The owner-only v0.4 app was
+  -- Hot Wheels/US scoped, and tooling used the casting name when not distinct.
+  new.tooling := coalesce(new.tooling, casting_name);
+  new.region := coalesce(new.region, 'US');
+  prefix := concat_ws('|',
+    'release-fingerprint-v2',
+    'brand:' || release_fingerprint_token('Hot Wheels'),
+    'releaseYear:' || release_fingerprint_token(new.release_year::text),
+    'casting:' || release_fingerprint_token(casting_name),
+    'tooling:' || release_fingerprint_token(new.tooling),
+    'line:' || release_fingerprint_token(new.line),
+    'seriesOrMix:' || release_fingerprint_token(new.series_mix),
+    'colorOrLivery:' || release_fingerprint_token(new.color_livery),
+    'chaseStatus:' || release_fingerprint_token(new.chase_status),
+    'wheelType:' || release_fingerprint_token(new.wheel_type),
+    'cardType:' || release_fingerprint_token(new.card_type),
+    'region:' || release_fingerprint_token(new.region)
+  );
+  if nullif(trim(new.product_code), '') is not null then
+    aliases := array_append(aliases, prefix || '|identifier:productCode:' || release_fingerprint_token(new.product_code));
+  end if;
+  if nullif(trim(new.collector_number), '') is not null then
+    aliases := array_append(aliases, prefix || '|identifier:collectorNumber:' || release_fingerprint_token(new.collector_number));
+  end if;
+  new.release_fingerprint_aliases := aliases;
+  new.release_fingerprint := coalesce(aliases[1], prefix || '|identifier:unknown');
+  return new;
+end;
+$$;
+
+drop trigger if exists releases_maintain_fingerprint on releases;
+create trigger releases_maintain_fingerprint
+before insert or update of casting_id, release_year, line, series_mix, collector_number,
+  color_livery, wheel_type, chase_status, card_type, product_code, tooling, region
+on releases for each row execute function maintain_release_fingerprint();
+
+-- Populate every pre-v0.5 release before duplicate lookup is enabled.
+update releases set tooling = tooling;
 create unique index if not exists releases_exact_fingerprint_idx
   on releases(release_fingerprint)
   where release_fingerprint is not null;
