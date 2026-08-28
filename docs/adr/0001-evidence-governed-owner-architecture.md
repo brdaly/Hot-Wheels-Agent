@@ -60,11 +60,10 @@ Deferred. Next.js nonce CSP requires per-request dynamic rendering, which would 
 - Source refresh and human promotion are operational work.
 - No fair-value output exists until a licensed/authorized sold-sales integration is added.
 - The static CSP retains inline allowances; this residual is reviewed rather than hidden.
-- Applying five ordered database migrations and owner bootstrap is required before production use.
+- Applying six ordered database migrations and owner bootstrap is required before production use.
 
 ## Verification
 
-- Contract, fingerprint, score, price, chase cross-check, source-expiry, authentication, quota, readiness, and migration invariants are covered by automated tests.
+- Contract, fingerprint, score, price, chase cross-check, source-expiry, media-rights, authentication, quota, readiness, and migration invariants are covered by automated tests.
 - CI runs lint, type checking, unit/contract tests, dependency audit, and a production build.
 - Production promotion follows `docs/DEPLOYMENT.md` with preview, readiness, owner/RLS, image, quota, retention, and rollback checks.
-

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { scoreObservation, tierFor, totalScore } from "../lib/scoring";
 import { ferrari } from "./fixtures";
 
-describe("Collection Priority Score v3.0", () => {
+describe("Collection Priority Score v3.1", () => {
   it("sums all seven bounded components", () => {
     expect(totalScore({
       releaseSignificance: 25,

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "media-manifest-v1",
+  "reviewedAt": "2026-08-28T00:00:00.000Z",
+  "expiresAt": "2026-09-04T00:00:00.000Z",
+  "governance": {
+    "publicationMode": "approved_exact_assets_only",
+    "unavailableAssetAction": "local_placeholder",
+    "runtimeAcquisition": false,
+    "remoteImageRelay": false,
+    "territoryMode": "worldwide_only",
+    "publicBucket": "hot-wheels-media-public"
+  },
+  "assets": []
+}
