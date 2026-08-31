@@ -2,6 +2,13 @@
 
 ## Promotion path
 
+Git branches and deployments are separate states. A branch or pull request receives a
+preview deployment; it does not update production. Production changes only when the
+tested commit is merged into `main` and the corresponding `main` deployment is ready.
+Before opening a pull request, compare with `base: main` and the work branch as
+`compare`; reversing those selectors shows everything added to `main` since an old
+branch diverged and can make a stale branch look like a large unmerged change.
+
 1. Merge only through a pull request after `npm run check`, dependency audit, migration static checks, and the accessibility smoke test pass.
 2. Connect the private GitHub repository to separate preview and production Vercel projects.
 3. Create separate preview and production Supabase projects. Apply migrations `001` through `007` in order.
