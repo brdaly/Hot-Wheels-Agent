@@ -9,7 +9,7 @@
 ## Supabase
 
 - Create preview and production projects.
-- Apply migrations `001` through `006` in order.
+- Apply migrations `001` through `007` in order.
 - Disable public sign-ups and invite the owner.
 - Set `HOTWHEELS_OWNER_USER_ID`, enroll the same user in `private.app_members`, and backfill any legacy owner rows using `SECURITY.md`.
 - Test owner allow and anonymous/non-owner deny cases.
