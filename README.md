@@ -82,6 +82,7 @@ Apply all migrations in order:
 4. `004_release_evidence_model.sql`
 5. `005_analysis_concurrency.sql`
 6. `006_governed_media_rights.sql`
+7. `007_release_fingerprint_aliases.sql`
 
 ## Verification
 
