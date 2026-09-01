@@ -19,7 +19,14 @@ export async function analyzeCarEvidence(
   const evidenceMode = dataUrls.length
     ? `Visual evidence is attached.${query ? ` The collector supplied this search hint: "${query}". Treat it only as a lead and resolve conflicts in favor of visible evidence.` : ""}`
     : `No photograph is attached. Analyze the collector's typed search: "${query}".`;
-  const model = process.env.OPENAI_MODEL ?? "gpt-5.6";
+  const model = process.env.OPENAI_MODEL ?? "gpt-5.6-luna";
+  const configuredDetail = process.env.OPENAI_IMAGE_DETAIL;
+  const imageDetail: "auto" | "high" | "low" =
+    configuredDetail === "high" || configuredDetail === "low" ? configuredDetail : "auto";
+  const configuredOutputLimit = Number(process.env.OPENAI_MAX_OUTPUT_TOKENS);
+  const maxOutputTokens = Number.isFinite(configuredOutputLimit) && configuredOutputLimit >= 1_500
+    ? Math.min(configuredOutputLimit, 12_000)
+    : dataUrls.length > 1 ? 6_500 : 3_200;
   const response = await client.responses.parse({
     model,
     instructions: AGENT_PROMPT,
@@ -30,12 +37,12 @@ export async function analyzeCarEvidence(
           type: "input_text",
           text: `${evidenceMode} Buyer market: ${market}/USD. Extract every distinct supported car. The app—not the model—will score, validate sources, check ownership and decide.`,
         },
-        ...dataUrls.map((image_url) => ({ type: "input_image" as const, image_url, detail: "high" as const })),
+        ...dataUrls.map((image_url) => ({ type: "input_image" as const, image_url, detail: imageDetail })),
       ],
     }],
     text: { format: zodTextFormat(PhotoAnalysisSchema, "hot_wheels_photo_analysis") },
-    reasoning: { effort: "medium" },
-    max_output_tokens: 6_500,
+    reasoning: { effort: "low" },
+    max_output_tokens: maxOutputTokens,
     safety_identifier: safetyIdentifier,
     store: false,
     metadata: {

@@ -72,7 +72,7 @@ npm ci
 npm run dev
 ```
 
-For a local UI-only session, `HOTWHEELS_DEV_AUTH_BYPASS=true` is permitted outside production. Never enable it in a shared environment. Real analysis needs `OPENAI_API_KEY`; authenticated collection use needs Supabase and the owner bootstrap described in [SECURITY.md](SECURITY.md).
+For a local UI-only session, `HOTWHEELS_DEV_AUTH_BYPASS=true` is permitted outside production. Never enable it in a shared environment. Real analysis needs `OPENAI_API_KEY`; authenticated collection use needs Supabase and the owner bootstrap described in [SECURITY.md](SECURITY.md). The cost-controlled baseline uses `gpt-5.6-luna`, low reasoning effort, automatic image detail, bounded output, authenticated quotas and concurrency. `HOTWHEELS_ANALYSIS_ENABLED=false` is the emergency billable-analysis kill switch.
 
 Apply all migrations in order:
 
@@ -92,7 +92,7 @@ npm run test:coverage
 npm audit --audit-level=high
 ```
 
-`npm run check` runs lint, type checking, unit/contract tests, and a production build. See [CONTRIBUTING.md](CONTRIBUTING.md) for change rules and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for promotion and rollback.
+`npm run check` runs lint, type checking, unit/contract tests, and a production build. See [CONTRIBUTING.md](CONTRIBUTING.md) for change rules, [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for promotion and rollback, and [docs/LAUNCH_GUIDE.md](docs/LAUNCH_GUIDE.md) for DNS, freemium and spend controls.
 
 ## API surface
 

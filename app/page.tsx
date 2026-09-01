@@ -487,7 +487,7 @@ export default function Home() {
     <main>
       <a className="skip-link" href="#primary-content">Skip to main content</a>
       <nav aria-label="Primary navigation">
-        <a className="brand" href="#top" aria-label={`${PRODUCT_NAME} home`}><img src="/daly-ventures-logo.svg" alt="Daly Ventures"/><b>{PRODUCT_NAME}</b></a>
+        <a className="brand" href="#top" aria-label={`${PRODUCT_NAME} home`}><img src="/daly-ventures-logo-official.png" alt="Daly Ventures"/><b>{PRODUCT_NAME}</b></a>
         <div className="navlinks" role="tablist" aria-label="Product sections">
           {tabs.map((item) => <button id={`tab-${item.id}`} key={item.id} type="button" role="tab" aria-selected={tab === item.id} aria-controls={`panel-${item.id}`} tabIndex={tab === item.id ? 0 : -1} onClick={() => openTab(item.id)} onKeyDown={(event) => handleTabKeyDown(event, item.id)} className={tab === item.id ? "active" : ""}>{item.label}</button>)}
         </div>

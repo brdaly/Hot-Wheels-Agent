@@ -89,6 +89,9 @@ async function consumeAnalysisQuota(identity: OwnerIdentity & { developmentBypas
 
 export async function POST(request: NextRequest) {
   const traceId = crypto.randomUUID();
+  if (process.env.HOTWHEELS_ANALYSIS_ENABLED === "false") {
+    return json({ error: "Live AI analysis is temporarily paused", code: "analysis_paused", traceId }, 503);
+  }
   const ip = trustedClientIp(request.headers);
   if (!isAllowedOrigin(request.url, request.headers.get("origin"))) {
     return json({ error: "Request rejected", traceId }, 403);
