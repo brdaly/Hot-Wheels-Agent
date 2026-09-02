@@ -279,7 +279,7 @@ details { color: var(--muted); font-size: .86rem; }
 .hunt-image img { width: 100%; height: 100%; display: block; object-fit: contain; transition: transform .28s ease; }
 .hunt-car:hover .hunt-image img { transform: scale(1.035); }
 .hunt-image span { position: absolute; left: 10px; bottom: 10px; padding: 7px 9px; border-radius: 4px; color: #fff; font-size: .58rem; font-weight: 950; letter-spacing: .12em; }
-.hunt-car.super .hunt-image span { background: #9a7625; }
+.hunt-car.super .hunt-image span { background: var(--warning); }
 .hunt-car.regular .hunt-image span { background: var(--red-contrast); }
 .hunt-copy { padding: 14px 16px 17px; }
 .hunt-copy small { color: var(--muted); font-size: .62rem; font-weight: 850; letter-spacing: .12em; }
