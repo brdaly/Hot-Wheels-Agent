@@ -636,7 +636,7 @@ export default function Home() {
 
       <footer>
         <div><b>{PRODUCT_NAME}</b><p>Collector intelligence, not a return forecast. Exact releases and high-value claims require verification.</p><div className="footer-nav"><a href="/disclaimer">Disclaimer</a><a href="/privacy">Privacy</a><button type="button" onClick={() => openTab("analyze", true)}>Owner sign in</button></div></div>
-        <div className="reference-sources"><b>Reference sources</b><a href="https://orangetrackdiecast.com/hot-wheels-casting-database/" target="_blank" rel="noreferrer">Orange Track Database ↗</a><a href="https://www.hwtreasure.com/" target="_blank" rel="noreferrer">HWtreasure ↗</a></div>
+        <div className="reference-sources"><b>Reference sources</b><a href="https://orangetrackdiecast.com/hot-wheels-casting-database/" target="_blank" rel="noreferrer">Orange Track Database ↗</a><a href="https://www.hwtreasure.com/" target="_blank" rel="noreferrer">HWtreasure ↗</a><a href="https://creations.mattel.com/pages/hot-wheels-showcase" target="_blank" rel="noreferrer">Mattel Showcase ↗</a></div>
         <small>A Daly Ventures project · Independent and not affiliated with or endorsed by Mattel · Beta v{packageMetadata.version}</small>
       </footer>
     </main>
