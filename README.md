@@ -94,6 +94,8 @@ npm audit --audit-level=high
 
 `npm run check` runs lint, type checking, unit/contract tests, and a production build. See [CONTRIBUTING.md](CONTRIBUTING.md) for change rules, [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for promotion and rollback, and [docs/LAUNCH_GUIDE.md](docs/LAUNCH_GUIDE.md) for DNS, freemium and spend controls.
 
+The assessed boundary for optional Mattel Showcase profile links and any future authorized account connection is documented in [docs/MATTEL_SHOWCASE_INTEGRATION.md](docs/MATTEL_SHOWCASE_INTEGRATION.md).
+
 ## API surface
 
 | Route | Method | Purpose |
