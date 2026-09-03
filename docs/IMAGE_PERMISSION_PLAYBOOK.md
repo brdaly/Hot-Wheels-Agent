@@ -1,11 +1,30 @@
 # Chase Grid image-permission playbook
 
+## Current personal-prototype boundary
+
+The owner-authenticated Brendan Daly demo may remotely reference the 30 attributed HWheadline/HWJamey images for
+private evaluation. The image list is server-only, the route requires the configured owner user ID, responses are
+private/no-store/noindex, and public visitors continue to receive neutral placeholders. The application does not copy,
+proxy, transform, or rehost these files. This posture reduces exposure but is not a public-display license.
+
+Do not expose the route to general members, remove the owner check, include the URLs in public JSON or client bundles,
+use the images in public previews/social cards, or turn them into local derivatives without written permission. If the
+product moves beyond Brendan's personal prototype, preserve the placeholders until the approval workflow below is
+complete.
+
 ## Recommended rights path
 
-Start with the **Hot Wheels® Collectors Newsletter**, published by Peter Kistler. Its digital catalog is the strongest
-single source for exact-release photography, but its website terms require prior written consent for non-personal reuse.
-The Newsletter also states that it operates under a Mattel license, so its approval must confirm whether it can license
-each photograph or whether Mattel or an individual photographer must approve separately.
+Start with **HWheadline / HWJamey**, because it is the credited source used for all 30 personal-prototype references.
+Ask whether HWheadline controls each photograph and can authorize remote display or provide licensed thumbnail files.
+Use its public contact channel and attach the exact URL schedule from `lib/private-hunt-images.ts`.
+
+- [HWheadline](https://hwheadline.com/)
+- [HWtreasure contact page](https://www.hwtreasure.com/contact-us/)
+
+The **Hot Wheels® Collectors Newsletter**, published by Peter Kistler, is a strong alternative catalog source. Its
+website terms require prior written consent for non-personal reuse. The Newsletter also states that it operates under a
+Mattel license, so its approval must confirm whether it can license each photograph or whether Mattel or an individual
+photographer must approve separately.
 
 - Publisher contact: `Peter.Kistler@HotWheelsCollectorsNewsletter.com`
 - General rights contact: `info@hwcollectorsnews.com`
