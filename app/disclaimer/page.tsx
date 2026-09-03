@@ -17,7 +17,8 @@ export default function DisclaimerPage() {
           <h1>Disclaimer</h1>
           <p className="legal-lede">
             Hot Wheels Collector Intelligence is an independent Daly Ventures project. It is not affiliated with,
-            endorsed by, or sponsored by Mattel, Inc. Hot Wheels and related marks belong to their respective owners.
+            endorsed by, or sponsored by Mattel, Inc. Hot Wheels® and related trademarks, names, packaging, and
+            product rights are owned or controlled by Mattel, Inc. and its licensors.
           </p>
 
           <section>
@@ -54,10 +55,11 @@ export default function DisclaimerPage() {
             <h2>External sources and images</h2>
             <p>
               Links to Mattel, retailers, HWtreasure, Orange Track Diecast, and other publishers are provided for
-              attribution and independent verification. Daly Ventures does not control those sites or imply that a
-              link grants permission to copy their photographs. Reference media is displayed only when its rights and
-              permitted use have been recorded; otherwise the application shows a neutral placeholder and links to the
-              publisher&apos;s page.
+              attribution and independent verification. Individual photographs and catalog materials may be separately
+              copyrighted by the credited photographer or publisher. Daly Ventures claims no ownership in those
+              materials. A link or attribution does not itself transfer image rights, grant permission, or imply
+              endorsement. This early prototype remotely displays attributed publisher images from their original host
+              and links to the credited source. Written permission will be sought before broader or commercial use.
             </p>
           </section>
 
