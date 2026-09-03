@@ -549,10 +549,6 @@ export default function Home() {
         </div>
 
         <article className={`demo-result ${activeDemo.tone}`} aria-labelledby="demo-result-title">
-          <div className="demo-visual">
-            <img src="/hunt-placeholder.svg" alt="Generic car silhouette used for an illustrative rules demo"/>
-            <span>GENERIC ILLUSTRATION · NOT AN EXACT RELEASE</span>
-          </div>
           <div className="demo-result-body">
             <p className="eyebrow">{activeDemo.title}</p>
             <h3 id="demo-result-title">{activeDemo.outcome}</h3>
