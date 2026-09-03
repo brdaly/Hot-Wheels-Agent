@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
       { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
       { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
-      { key: "Content-Security-Policy", value: "default-src 'self'; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com; connect-src 'self' https://va.vercel-analytics.com; font-src 'self' data:; object-src 'none'; media-src 'none'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" },
+      { key: "Content-Security-Policy", value: "default-src 'self'; img-src 'self' blob: data: https://storage.ghost.io; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com; connect-src 'self' https://va.vercel-analytics.com; font-src 'self' data:; object-src 'none'; media-src 'none'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" },
     ] }];
   },
 };
