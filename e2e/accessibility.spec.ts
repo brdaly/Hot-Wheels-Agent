@@ -19,8 +19,10 @@ test("core collector workflow is navigable and has no serious accessibility viol
   await expect(page.getByRole("heading", { name: "The Chase Grid" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Drift-Ender/ })).toHaveAttribute(
     "href",
-    "https://www.hwtreasure.com/2026-super/drift-ender/",
+    "https://hwheadline.com/drift-ender-2026-hot-wheels-super-treasure-hunt/",
   );
+  await expect(page.getByRole("img", { name: /Drift-Ender 2026 super treasure hunt reference photograph/i })).toBeVisible();
+  await expect(page.getByText("Photo: HWheadline / HWJamey").first()).toBeVisible();
 
   await page.getByRole("tab", { name: "US Retail" }).press("ArrowLeft");
   await expect(page.getByRole("tab", { name: "Chase Grid" })).toBeFocused();
