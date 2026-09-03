@@ -57,9 +57,11 @@ export default function DisclaimerPage() {
               Links to Mattel, retailers, HWtreasure, Orange Track Diecast, and other publishers are provided for
               attribution and independent verification. Individual photographs and catalog materials may be separately
               copyrighted by the credited photographer or publisher. Daly Ventures claims no ownership in those
-              materials. A link or attribution does not itself grant permission or imply endorsement. Reference media
-              is displayed only under documented permission or license from the applicable rights holder; otherwise the
-              application shows a neutral placeholder and links to the publisher&apos;s page.
+              materials. A link or attribution does not itself grant permission or imply endorsement. The public
+              application shows neutral placeholders unless documented display rights exist. A Brendan Daly-only,
+              authenticated personal prototype may remotely reference clearly attributed publisher images from their
+              original host for private evaluation; those images are not licensed for public distribution and are not
+              available to public visitors or member accounts.
             </p>
           </section>
 
