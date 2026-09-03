@@ -1,22 +1,21 @@
 # Chase Grid image-permission playbook
 
-## Current personal-prototype boundary
+## Current early-prototype boundary
 
-The owner-authenticated Brendan Daly demo may remotely reference the 30 attributed HWheadline/HWJamey images for
-private evaluation. The image list is server-only, the route requires the configured owner user ID, responses are
-private/no-store/noindex, and public visitors continue to receive neutral placeholders. The application does not copy,
-proxy, transform, or rehost these files. This posture reduces exposure but is not a public-display license.
+The early prototype remotely displays 30 attributed HWheadline/HWJamey reference images to visitors. It links each
+image to the credited original and does not copy, proxy, transform, or rehost the files. The product carries a visible
+prototype, ownership, attribution, independence, and non-endorsement notice.
 
-Do not expose the route to general members, remove the owner check, include the URLs in public JSON or client bundles,
-use the images in public previews/social cards, or turn them into local derivatives without written permission. If the
-product moves beyond Brendan's personal prototype, preserve the placeholders until the approval workflow below is
-complete.
+This is a product decision, not evidence of permission. Attribution and an early-stage label do not create a license.
+Do not use these photographs in advertising, social cards, downloads, local derivatives, paid-member marketing, or a
+commercial/general-availability launch until the approval workflow below is complete. Replace an image promptly if the
+publisher objects or the source becomes unavailable.
 
 ## Recommended rights path
 
-Start with **HWheadline / HWJamey**, because it is the credited source used for all 30 personal-prototype references.
+Start with **HWheadline / HWJamey**, because it is the credited source used for all 30 early-prototype references.
 Ask whether HWheadline controls each photograph and can authorize remote display or provide licensed thumbnail files.
-Use its public contact channel and attach the exact URL schedule from `lib/private-hunt-images.ts`.
+Use its public contact channel and attach the exact URL schedule from `data/hunt-reference-images.ts`.
 
 - [HWheadline](https://hwheadline.com/)
 - [HWtreasure contact page](https://www.hwtreasure.com/contact-us/)
@@ -61,7 +60,8 @@ implications.
 4. Bind each photograph to the exact verified release fingerprint, photographer/publisher, attribution, territory, term,
    transformations, and takedown contact.
 5. Create metadata-stripped responsive derivatives and review them against the exact release.
-6. Publish only assets that pass the governed-media resolver; retain the neutral placeholder for every other entry.
+6. For general availability, publish only assets that pass the governed-media resolver; retain the neutral placeholder
+   for every other entry.
 7. Remove or revoke assets promptly if permission expires, is withdrawn, or the release identity changes.
 8. Repeat the process for each new model year unless the agreement expressly covers future releases.
 
@@ -69,8 +69,9 @@ implications.
 
 > Hot Wheels® and related trademarks, names, packaging, and product rights are owned or controlled by Mattel, Inc. and
 > its licensors. Individual photographs and catalog materials remain the property of their credited rights holders and
-> are displayed only under documented permission or license. Attribution does not imply endorsement. Daly Ventures
-> Collector is independent and is not affiliated with, sponsored by, or endorsed by Mattel, Inc.
+> are displayed as attributed remote references during this early prototype. Attribution does not transfer image rights
+> or imply endorsement. Daly Ventures Collector is independent and is not affiliated with, sponsored by, or endorsed by
+> Mattel, Inc. Written permission will be sought before broader or commercial use.
 
 Any mandatory wording supplied by Mattel or the image licensor controls. A monetized launch may warrant a short review
 by U.S. intellectual-property counsel.
