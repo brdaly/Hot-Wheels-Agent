@@ -5,6 +5,7 @@ import { DragEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useSta
 import packageMetadata from "@/package.json";
 import carSuggestions from "@/data/car-search-index.json";
 import hunts from "@/data/hunt-map-2026.json";
+import { HUNT_REFERENCE_IMAGES, type HuntReferenceImage } from "@/data/hunt-reference-images";
 import { PUBLIC_DEMO_REVIEWED_ON, PUBLIC_DEMO_RULESET, publicDemoScenarios } from "@/data/public-demo-scenarios";
 import retail from "@/data/us-retail-2026-08-27.json";
 import { deriveResultPresentation } from "@/lib/result-presentation";
@@ -133,7 +134,6 @@ type CollectionState = "unknown" | "first_copy" | "duplicate";
 type DuplicateIntent = "" | "open_display" | "condition_upgrade" | "trade" | "resale" | "sealed_copy" | "gift";
 type CollectionControl = { state: CollectionState; intent: DuplicateIntent };
 type HuntCarEntry = { name: string; part: string; sourceUrl: string };
-type PrivateHuntPhoto = HuntCarEntry & { imageUrl: string; attribution: string };
 
 const tabs: Array<{ id: Tab; label: string }> = [
   { id: "showcase", label: "Public Demo" },
@@ -192,17 +192,19 @@ function formatMoney(value: number, currency: string) {
   }
 }
 
-function HuntCar({ kind, car, photo }: { kind: "super" | "regular"; car: HuntCarEntry; photo?: PrivateHuntPhoto }) {
+const huntReferenceImages = Object.fromEntries(HUNT_REFERENCE_IMAGES.map((image) => [image.part, image]));
+
+function HuntCar({ kind, car, photo }: { kind: "super" | "regular"; car: HuntCarEntry; photo: HuntReferenceImage }) {
   const label = kind === "super" ? "SUPER TREASURE HUNT" : "TREASURE HUNT";
-  const image = <div className={`hunt-image ${photo ? "private-reference" : "reference-only"}`}><img src={photo?.imageUrl ?? "/hunt-placeholder.svg"} alt={photo ? `${car.name} 2026 ${label.toLowerCase()} reference photograph` : ""} aria-hidden={photo ? undefined : true} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={photo ? (event) => { event.currentTarget.src = "/hunt-placeholder.svg"; event.currentTarget.alt = "Reference photograph unavailable"; } : undefined}/><span>{label}</span></div>;
+  const image = <div className="hunt-image attributed-reference"><img src={photo.imageUrl} alt={`${car.name} 2026 ${label.toLowerCase()} reference photograph`} loading="lazy" decoding="async" referrerPolicy="no-referrer"/><span>{label}</span></div>;
 
   return (
     <article className={`hunt-car ${kind}`}>
-      {photo ? <a className="hunt-image-link" href={photo.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Open credited photograph for ${car.name}`}>{image}</a> : image}
+      <a className="hunt-image-link" href={photo.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Open credited photograph for ${car.name}`}>{image}</a>
       <div className="hunt-copy">
         <small>{car.part}</small>
         <h3>{car.name}</h3>
-        {photo ? <p className="hunt-attribution">{photo.attribution} · <a href={photo.sourceUrl} target="_blank" rel="noreferrer">View original ↗</a></p> : <p>Owner sign-in displays the private demo photograph.</p>}
+        <p className="hunt-attribution">{photo.attribution} · <a href={photo.sourceUrl} target="_blank" rel="noreferrer">View original ↗</a></p>
         <a className="hunt-reference-link" href={car.sourceUrl} target="_blank" rel="noreferrer">Verify release at HWtreasure ↗</a>
       </div>
     </article>
@@ -392,7 +394,6 @@ export default function Home() {
   const [demoId, setDemoId] = useState(publicDemoScenarios[0].id);
   const [collectionOverrides, setCollectionOverrides] = useState<Record<string, CollectionControl>>({});
   const [authStatus, setAuthStatus] = useState<AuthStatus>("checking");
-  const [privateHuntImages, setPrivateHuntImages] = useState<Record<string, PrivateHuntPhoto>>({});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signingIn, setSigningIn] = useState(false);
@@ -412,22 +413,6 @@ export default function Home() {
       .catch(() => { if (active) setAuthStatus("required"); });
     return () => { active = false; };
   }, []);
-  useEffect(() => {
-    if (authStatus !== "authenticated") return;
-    let active = true;
-    fetch("/api/hunt-images", { cache: "no-store" })
-      .then(async (response) => {
-        if (response.status === 401) setAuthStatus("required");
-        if (!response.ok) throw new Error("Private reference images are unavailable");
-        return response.json() as Promise<{ images?: PrivateHuntPhoto[] }>;
-      })
-      .then((body) => {
-        if (!active || !Array.isArray(body.images)) return;
-        setPrivateHuntImages(Object.fromEntries(body.images.map((image) => [image.part, image])));
-      })
-      .catch(() => { if (active) setPrivateHuntImages({}); });
-    return () => { active = false; };
-  }, [authStatus]);
 
   function addFiles(next: File[]) {
     const rejected: string[] = [];
@@ -511,7 +496,6 @@ export default function Home() {
   async function signOut() {
     await fetch("/api/session", { method: "DELETE" }).catch(() => undefined);
     setResult(null);
-    setPrivateHuntImages({});
     setAuthStatus("required");
   }
 
@@ -655,14 +639,14 @@ export default function Home() {
 
       <section id="panel-hunts" role="tabpanel" aria-labelledby="tab-hunts" className="data-section chase-section tab-panel" hidden={tab !== "hunts"}>
         <div className="section-head"><div><p className="eyebrow">2026 · ATTRIBUTED REFERENCE INDEX</p><h2>The Chase Grid</h2></div><p>Thirty Super Treasure Hunt and regular Treasure Hunt leads, organized by mainline case. Open the attributed source page before calling a chase.</p></div>
-        {Object.keys(privateHuntImages).length > 0 && <div className="private-image-notice" role="note"><strong>PRIVATE PERSONAL PROTOTYPE</strong><span>Brendan Daly owner session only · Remote reference photography · Not licensed for public distribution</span></div>}
+        <div className="private-image-notice" role="note"><strong>PRIVATE PROTOTYPE</strong><span>Early demonstration · Attributed remote reference photography · Independent and not affiliated with Mattel</span></div>
         <div className="chase-methodology" aria-labelledby="chase-method-title">
           <div><p className="eyebrow">HOW TO USE THIS GRID</p><h3 id="chase-method-title">A lead index—not an authentication result.</h3></div>
           <ol><li><b>Locate</b><span>Use case placement and product code as starting clues.</span></li><li><b>Open</b><span>Review the attributed release page for exact photography.</span></li><li><b>Cross-check</b><span>Confirm wheels, finish, markings and packaging against a second source.</span></li><li><b>Reverify</b><span>Entries can change; use the update date and report corrections.</span></li></ol>
         </div>
         <div className="hunt-legend"><span><i className="super-dot"/>Super Treasure Hunt</span><span><i className="regular-dot"/>Treasure Hunt</span><small>{hunts.cases.length * 2} targets · updated {hunts.asOf}</small></div>
-        <div className="hunt-grid">{hunts.cases.map((item) => <article className="hunt-case" key={item.case}><div className="case-label"><span>MAINLINE</span><strong>CASE {item.case}</strong></div>{([ ["super", item.super], ["regular", item.treasure] ] as const).map(([kind, car]) => <HuntCar kind={kind} car={car} photo={privateHuntImages[car.part]} key={car.part}/>)}</article>)}</div>
-        <p className="source-note">Hot Wheels® trademarks, names, packaging, and related product rights are owned or controlled by Mattel, Inc. Photograph rights remain with HWheadline/HWJamey or the applicable credited rights holder. During Brendan Daly&apos;s authenticated owner session, this private personal prototype remotely references attributed images from their original host; it does not copy or rehost them, and no public-display license is claimed. Public visitors receive placeholders. Open each credited original and cross-check status and placement with the <a href="https://www.hwtreasure.com/treasure-hunt-checklist/" target="_blank" rel="noreferrer">HWtreasure checklist</a> and <a href="https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/" target="_blank" rel="noreferrer">Orange Track 2026 master list</a>.</p>
+        <div className="hunt-grid">{hunts.cases.map((item) => <article className="hunt-case" key={item.case}><div className="case-label"><span>MAINLINE</span><strong>CASE {item.case}</strong></div>{([ ["super", item.super], ["regular", item.treasure] ] as const).map(([kind, car]) => <HuntCar kind={kind} car={car} photo={huntReferenceImages[car.part]} key={car.part}/>)}</article>)}</div>
+        <p className="source-note">Hot Wheels® trademarks, names, packaging, and related product rights are owned or controlled by Mattel, Inc. Photograph rights remain with HWheadline/HWJamey or the applicable credited rights holder. This early prototype remotely displays attributed reference images from their original host; Daly Ventures does not claim ownership, affiliation, endorsement, or a transfer of image rights. Open each credited original and cross-check status and placement with the <a href="https://www.hwtreasure.com/treasure-hunt-checklist/" target="_blank" rel="noreferrer">HWtreasure checklist</a> and <a href="https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/" target="_blank" rel="noreferrer">Orange Track 2026 master list</a>.</p>
       </section>
 
       <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" className="data-section tab-panel" hidden={tab !== "market"}><div className="section-head"><div><p className="eyebrow">UNITED STATES · {retail.asOf}</p><h2>US retail gates</h2></div><p>First-party shelf benchmarks for disciplined buying. These are retail reference points—not secondary-market valuations.</p></div><div className="snapshot-status"><span className={`freshness-chip ${retailFreshness.status}`}>{retailFreshness.label}</span><p>Recheck exact SKU, store and availability before purchase.</p></div><div className="price-grid">{retail.benchmarks.map((row) => <article key={row.category}><small>{pretty(row.category)}</small><strong>${row.normalPrice.toFixed(2)}</strong><p>{row.retailer}</p><span>Lower-price checkpoint ≤ ${row.strongBuyAtOrBelow.toFixed(2)}</span><a href={row.sourceUrl} target="_blank" rel="noreferrer">Retail source ↗</a></article>)}</div><div className="notes">{retail.notes.map((note) => <p key={note}>↳ {note}</p>)}</div></section>
