@@ -102,14 +102,10 @@ h3 { margin: .3rem 0; letter-spacing: -.035em; }
 .demo-picker b { align-self: end; font-size: .82rem; }
 .demo-picker small { align-self: start; color: var(--muted); font-size: .66rem; }
 .demo-picker button[aria-pressed="true"] small { color: #c7c7c2; }
-.demo-result { display: grid; grid-template-columns: minmax(250px, .7fr) minmax(0, 1.3fr); min-height: 520px; overflow: hidden; border: 1px solid var(--line); border-radius: 19px; background: #fff; }
+.demo-result { min-height: 520px; overflow: hidden; border: 1px solid var(--line); border-radius: 19px; background: #fff; }
 .demo-result.ready { border-top: 5px solid var(--success); }
 .demo-result.verify { border-top: 5px solid var(--verify-line); }
 .demo-result.pass { border-top: 5px solid var(--danger); }
-.demo-visual { position: relative; min-height: 100%; display: grid; place-items: center; overflow: hidden; border-right: 1px solid var(--line); background: linear-gradient(150deg, #e6e4dd, #f8f7f3); }
-.demo-visual::before { content: ""; position: absolute; width: 310px; height: 310px; border: 1px solid #cdcbc4; border-radius: 50%; }
-.demo-visual img { position: relative; width: min(100%, 520px); height: auto; mix-blend-mode: multiply; }
-.demo-visual > span { position: absolute; inset: auto 14px 14px; padding: 8px; border-radius: 6px; background: rgba(255,255,255,.9); color: var(--muted); font-size: .56rem; font-weight: 900; letter-spacing: .1em; text-align: center; }
 .demo-result-body { min-width: 0; padding: clamp(24px, 4vw, 42px); }
 .demo-result-body h3 { margin: 4px 0 10px; font-size: clamp(2rem, 3.5vw, 3.25rem); line-height: .98; }
 .demo-premise { margin: 0 0 18px; color: var(--muted); line-height: 1.55; }
@@ -349,8 +345,6 @@ footer small { grid-column: 1 / -1; }
   header { min-height: auto; grid-template-columns: 1fr; padding: 58px 30px; }
   .signal { display: none; }
   .workbench, .data-section, .results { padding: 24px; border-radius: 19px; }
-  .demo-result { grid-template-columns: 1fr; }
-  .demo-visual { min-height: 280px; border-right: 0; border-bottom: 1px solid var(--line); }
   .demo-boundary { grid-template-columns: 1fr 1fr; }
   .demo-boundary button { grid-column: 1 / -1; }
   .section-head { display: block; }
