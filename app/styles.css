@@ -281,7 +281,7 @@ details { color: var(--muted); font-size: .86rem; }
 .hunt-image-link { display: block; color: inherit; text-decoration: none; }
 .hunt-image { position: relative; height: 205px; overflow: hidden; background: #eef5fc; }
 .hunt-image img { width: 100%; height: 100%; display: block; object-fit: contain; transition: transform .28s ease; }
-.hunt-image.private-reference { background: #fff; }
+.hunt-image.attributed-reference { background: #fff; }
 .hunt-image-link:hover .hunt-image img { transform: scale(1.035); }
 .hunt-image-link:focus-visible { outline: 4px solid var(--ice); outline-offset: -4px; }
 .hunt-image span { position: absolute; left: 10px; bottom: 10px; padding: 7px 9px; border-radius: 4px; color: #fff; font-size: .58rem; font-weight: 950; letter-spacing: .12em; }
