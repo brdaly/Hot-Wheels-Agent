@@ -52,9 +52,11 @@ export default function PrivacyPage() {
           <section>
             <h2>Reference media</h2>
             <p>
-              A source URL is not treated as permission to copy an image. Media is eligible for display only after its
-              rights holder, permission or license evidence, permitted transformations, attribution requirements, and
-              review status have been recorded. Expired, revoked, or unapproved media fails closed to a placeholder.
+              Chase Grid photographs are requested directly from the credited publisher&apos;s image host; Daly Ventures
+              does not upload or proxy those files. The publisher may receive the visitor&apos;s IP address and browser
+              information when the image loads, while the application sends no referrer. Attribution and a source link
+              do not transfer image rights. A separately hosted Daly Ventures rendition remains eligible for display
+              only after its permission or license evidence and review status have been recorded.
             </p>
           </section>
 
