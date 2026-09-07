@@ -4,6 +4,11 @@ import { findChaseReference } from "../lib/collector-reference";
 import { chaseVerification, exactReleaseGate } from "../lib/scoring";
 import { ferrari } from "./fixtures";
 
+// Pin evaluation to the catalog review date so these tests exercise the
+// matching rules, not the calendar. Source expiry is covered separately below
+// and by the scheduled source-review workflow.
+const REVIEWED = new Date("2026-08-28T12:00:00Z");
+
 describe("governed chase references", () => {
   it("uses exact attributed HWtreasure item pages and stores no third-party image URLs", () => {
     const serialized = JSON.stringify(hunts);
@@ -40,13 +45,13 @@ describe("governed chase references", () => {
         chaseMarkersObserved: ["circle_flame_card_symbol" as const],
       },
     };
-    expect(findChaseReference(regular.identification).match).toBe("exact_product_code");
-    expect(chaseVerification(regular).verified).toBe(false);
-    expect(exactReleaseGate(regular).ready).toBe(false);
+    expect(findChaseReference(regular.identification, REVIEWED).match).toBe("exact_product_code");
+    expect(chaseVerification(regular, REVIEWED).verified).toBe(false);
+    expect(exactReleaseGate(regular, REVIEWED).ready).toBe(false);
     expect(chaseVerification({
       ...regular,
       identification: { ...regular.identification, chaseMarkersObserved: ["low_production_vehicle_symbol"] },
-    }).verified).toBe(true);
+    }, REVIEWED).verified).toBe(true);
   });
 
   it("fails chase verification closed after a governed source expires", () => {
@@ -79,8 +84,8 @@ describe("governed chase references", () => {
       casting: "’87 Buick Regal GNX",
       chaseStatus: "regular_th" as const,
     };
-    expect(findChaseReference({ ...base, releaseYear: 2025 }).match).not.toBe("exact_product_code");
-    expect(findChaseReference({ ...base, casting: "Wrong casting" }).match).not.toBe("exact_product_code");
+    expect(findChaseReference({ ...base, releaseYear: 2025 }, REVIEWED).match).not.toBe("exact_product_code");
+    expect(findChaseReference({ ...base, casting: "Wrong casting" }, REVIEWED).match).not.toBe("exact_product_code");
   });
 });
 
