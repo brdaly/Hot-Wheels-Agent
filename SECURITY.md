@@ -1,6 +1,10 @@
 # Security policy
 
-Report vulnerabilities privately to the repository owner. Do not open public issues containing credentials, customer photos, collection records, exploit details, or personal data.
+Report vulnerabilities privately through GitHub's **Security → Advisories → Report a vulnerability** form:
+
+<https://github.com/brdaly/Hot-Wheels-Agent/security/advisories/new>
+
+If that form is unavailable, use <https://dalyventures.com/> to request a secure reporting channel. Do not open public issues containing credentials, customer photos, collection records, exploit details, or personal data.
 
 ## Controls
 
