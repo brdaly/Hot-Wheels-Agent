@@ -55,6 +55,11 @@ updates:
       - dependency-name: "typescript"
         update-types:
           - version-update:semver-major
+      # ESLint majors require matching support from eslint-config-next and its
+      # bundled plugins; ESLint 10 currently crashes react/display-name.
+      - dependency-name: "eslint"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /
