@@ -64,7 +64,7 @@ Migration `006_governed_media_rights.sql` enforces the database side. Assets can
 
 ## Local development
 
-Requirements: Node.js 22 or newer and npm.
+Requirements: Node.js 22.12 or newer within the 22.x LTS line, and npm.
 
 ```bash
 cp .env.example .env.local
