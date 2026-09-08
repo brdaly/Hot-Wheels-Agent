@@ -10,13 +10,25 @@ updates:
       timezone: America/Detroit
     open-pull-requests-limit: 5
     groups:
+      # Vitest and its coverage provider must move together because their
+      # versions are peer-coupled.
+      vitest-toolchain:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - patch
+          - minor
+          - major
       routine-npm-updates:
         patterns:
           - "*"
         exclude-patterns:
           - "@types/node"
+          - "@vitest/*"
           - "next"
           - "eslint-config-next"
+          - "vitest"
         update-types:
           - minor
           - patch
@@ -36,6 +48,11 @@ updates:
     ignore:
       # @types/node major versions require a deliberate Node runtime upgrade.
       - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
+      # TypeScript majors require explicit support from the Next.js ESLint
+      # toolchain; the current typescript-eslint release rejects TypeScript 7.
+      - dependency-name: "typescript"
         update-types:
           - version-update:semver-major
 
