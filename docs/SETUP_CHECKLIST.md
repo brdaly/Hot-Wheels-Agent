@@ -2,9 +2,13 @@
 
 ## GitHub
 
-- Keep the repository private until the source, security, trademark, and media review is complete.
-- Require pull requests, passing CI, and at least one review for `main` when the GitHub plan supports rulesets for private repositories.
-- Enable secret scanning, Dependabot alerts/updates, and signed or otherwise attributable releases where available.
+- The repository is public and deployed at <https://hot-wheels-agent.vercel.app>. Anything added to it is
+  published the moment it is pushed, so source, trademark, and media review happens before the commit,
+  not before a later flip to public.
+- Require pull requests and passing CI for `main` through a ruleset. Rulesets are available on public
+  repositories on every plan.
+- Enable secret scanning with push protection, private vulnerability reporting, Dependabot alerts and
+  updates, and signed or otherwise attributable releases.
 
 ## Supabase
 
