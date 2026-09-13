@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   governed-evals:
@@ -22,6 +23,37 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run eval
-      - run: npm test -- tests/source-registry.test.ts tests/collector-reference.test.ts tests/source-freshness-current.test.ts
+
+      # Runs before the assertions below so the report exists even when they
+      # fail. The step is allowed to fail on its own; the job still fails at the
+      # end, and the report is what makes the failure actionable.
+      - name: Report governed inputs past re-review
+        id: freshness
+        continue-on-error: true
+        run: node scripts/governance-freshness.mjs --report governance-freshness.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the source review issue
+        if: steps.freshness.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: Governed source review overdue
+        run: |
+          set -euo pipefail
+          number="$(gh issue list --state open --search "$TITLE in:title" --json number,title \
+            --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")"
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file governance-freshness.md
+            gh issue comment "$number" --body "Still overdue on $(date -u +%Y-%m-%d). The list above has been refreshed from this run."
+          else
+            gh issue create --title "$TITLE" --body-file governance-freshness.md
+          fi
+
+      - run: npm test -- tests/source-registry.test.ts tests/collector-reference.test.ts tests/source-freshness-current.test.ts tests/governance-freshness.test.ts
         env:
           CI_SOURCE_REVIEW: "true"
+
+      - name: Fail when a governed input is past re-review
+        if: steps.freshness.outcome == 'failure'
+        run: |
+          echo "Governed inputs are past their re-review date; see the job summary and the open issue." >&2
+          exit 1

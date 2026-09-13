@@ -53,7 +53,7 @@ No eBay sold feed is present. Finding/Shopping were decommissioned, Browse repre
 
 ## Governed media
 
-`data/media-manifest.json` intentionally starts empty. Missing media uses the local silhouette; it never triggers runtime scraping, hotlinking, copying, background removal, or image generation. A car cutout, package view, detail photograph, render, or illustration may enter the public manifest only after:
+`data/media-manifest.json` intentionally starts empty, and the resolver below is built and tested but not yet called from the request path: no route in `app/` imports it, so the running application serves the local silhouette for every reference image. The rules are described here as the contract media must satisfy before it is wired in. Missing media uses the local silhouette; it never triggers runtime scraping, hotlinking, copying, background removal, or image generation. A car cutout, package view, detail photograph, render, or illustration may enter the public manifest only after:
 
 1. the asset is tied to a human-verified exact `releases` row and pins the release fingerprint that was actually reviewed;
 2. private permission evidence identifies the rights holder and allowed channels/transformations;
