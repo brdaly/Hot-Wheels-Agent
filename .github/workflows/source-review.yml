@@ -48,6 +48,24 @@ jobs:
             gh issue create --title "$TITLE" --body-file governance-freshness.md
           fi
 
+      # Nothing else closes it. Without this the issue stays open forever with a
+      # stale overdue report while the weekly check is green, which teaches the
+      # reader to ignore the issue and then to ignore the next real one.
+      - name: Close the source review issue once nothing is overdue
+        if: steps.freshness.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: Governed source review overdue
+        run: |
+          set -euo pipefail
+          number="$(gh issue list --state open --search "$TITLE in:title" --json number,title \
+            --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")"
+          if [ -n "$number" ]; then
+            gh issue comment "$number" \
+              --body "Every governed input is back within its re-review window as of $(date -u +%Y-%m-%d). Closing; the weekly job will reopen this if anything expires again."
+            gh issue close "$number" --reason completed
+          fi
+
       - run: npm test -- tests/source-registry.test.ts tests/collector-reference.test.ts tests/source-freshness-current.test.ts tests/governance-freshness.test.ts
         env:
           CI_SOURCE_REVIEW: "true"
