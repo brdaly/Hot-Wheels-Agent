@@ -106,7 +106,7 @@ describe("asset rights deadlines", () => {
     // current manifest is no guarantee its media is still publishable.
     const report = collectExpired(
       currentCatalog,
-      manifestWith([{ assetId: "a1", releaseId: "r1", rights: { expiresAt: "2026-09-10T00:00:00.000Z" } }]),
+      manifestWith([{ assetId: "a1", releaseId: "r1", lifecycleStatus: "approved", rights: { expiresAt: "2026-09-10T00:00:00.000Z", evidenceStatus: "verified" } }]),
       at("2026-09-14"),
     );
 
@@ -121,7 +121,8 @@ describe("asset rights deadlines", () => {
       manifestWith([
         {
           assetId: "a2",
-          rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2026-09-05T00:00:00.000Z" },
+          lifecycleStatus: "approved",
+          rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2026-09-05T00:00:00.000Z", evidenceStatus: "verified" },
         },
       ]),
       at("2026-09-14"),
@@ -130,11 +131,43 @@ describe("asset rights deadlines", () => {
     expect(report.assets.map((asset) => asset.field)).toEqual(["rights.evidenceExpiresAt"]);
   });
 
+  it("ignores a retired asset, which no re-review could ever clear", () => {
+    // approvedMediaFromManifest only serves lifecycleStatus "approved" with
+    // unrevoked, unwithdrawn, verified evidence. A taken-down asset is retained
+    // on purpose as an audit record and its rights deadline is permanently in
+    // the past, so reporting it would wedge the weekly job red with no
+    // remediation available. It is already not being served; nothing degrades.
+    const retired = [
+      { assetId: "gone", lifecycleStatus: "takedown", rights: { expiresAt: "2026-01-01T00:00:00.000Z", revokedAt: "2025-06-01T00:00:00.000Z", evidenceStatus: "verified" } },
+      { assetId: "revoked", lifecycleStatus: "revoked", rights: { expiresAt: "2026-01-01T00:00:00.000Z", revokedAt: "2025-06-01T00:00:00.000Z", evidenceStatus: "verified" } },
+      { assetId: "withdrawn", lifecycleStatus: "approved", rights: { expiresAt: "2026-01-01T00:00:00.000Z", evidenceWithdrawnAt: "2025-06-01T00:00:00.000Z", evidenceStatus: "verified" } },
+      { assetId: "disputed", lifecycleStatus: "approved", rights: { expiresAt: "2026-01-01T00:00:00.000Z", evidenceStatus: "disputed" } },
+      { assetId: "pending", lifecycleStatus: "review_pending", rights: { expiresAt: "2026-01-01T00:00:00.000Z", evidenceStatus: "verified" } },
+    ];
+
+    const report = collectExpired(currentCatalog, manifestWith(retired), at("2026-09-14"));
+
+    expect(report.assets).toEqual([]);
+    expect(formatReport(report)).toContain("within their re-review window");
+  });
+
+  it("still flags an approved asset with verified evidence", () => {
+    const report = collectExpired(
+      currentCatalog,
+      manifestWith([
+        { assetId: "live", lifecycleStatus: "approved", rights: { expiresAt: "2026-09-10T00:00:00.000Z", evidenceStatus: "verified", revokedAt: null, evidenceWithdrawnAt: null } },
+      ]),
+      at("2026-09-14"),
+    );
+
+    expect(report.assets.map((asset) => asset.assetId)).toEqual(["live"]);
+  });
+
   it("leaves an asset alone while both of its deadlines are ahead", () => {
     const report = collectExpired(
       currentCatalog,
       manifestWith([
-        { assetId: "a3", rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2099-01-01T00:00:00.000Z" } },
+        { assetId: "a3", lifecycleStatus: "approved", rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2099-01-01T00:00:00.000Z", evidenceStatus: "verified" } },
       ]),
       at("2026-09-14"),
     );
@@ -145,7 +178,7 @@ describe("asset rights deadlines", () => {
   it("reports an expired asset as overdue work rather than reporting all clear", () => {
     const report = collectExpired(
       currentCatalog,
-      manifestWith([{ assetId: "a4", rights: { expiresAt: "2026-09-10T00:00:00.000Z" } }]),
+      manifestWith([{ assetId: "a4", lifecycleStatus: "approved", rights: { expiresAt: "2026-09-10T00:00:00.000Z", evidenceStatus: "verified" } }]),
       at("2026-09-14"),
     );
 

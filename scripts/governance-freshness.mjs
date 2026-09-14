@@ -84,6 +84,18 @@ export function collectExpired(catalog, manifest, asOf) {
   // current, so reporting only the manifest deadline leaves the job green over
   // media that is already unpublishable.
   const assets = (manifest.assets ?? [])
+    // Only assets the media gate would otherwise serve. A revoked, taken-down
+    // or withdrawn asset is retained deliberately as an audit record, and
+    // `mediaLifecycleStatusSchema` requires `rights.revokedAt` on those states.
+    // Reporting its long-past rights deadline flags work that cannot be done:
+    // there is no re-review that returns a taken-down asset to currency, so the
+    // weekly job would go red and stay red with no way to clear it. Such an
+    // asset is already not being served, so nothing is degrading.
+    .filter((asset) =>
+      asset.lifecycleStatus === "approved"
+      && asset.rights?.revokedAt == null
+      && asset.rights?.evidenceWithdrawnAt == null
+      && asset.rights?.evidenceStatus === "verified")
     .flatMap((asset) => {
       const deadlines = [
         ["rights.expiresAt", asset.rights?.expiresAt],
