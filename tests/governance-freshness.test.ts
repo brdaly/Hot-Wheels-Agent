@@ -78,3 +78,116 @@ describe("formatReport", () => {
     expect(report).toContain("rather than repeatedly pushing the date forward");
   });
 });
+
+describe("asset rights deadlines", () => {
+  const currentCatalog = {
+    sources: [
+      {
+        id: "always-current",
+        publisher: "P",
+        url: "https://example.test/",
+        purpose: "fixture",
+        freshness: { cadenceDays: 7, expiresOn: "2099-01-01", basis: "fixture" },
+        supportedClaims: [],
+      },
+    ],
+  } as unknown as { sources: readonly Record<string, unknown>[] };
+
+  function manifestWith(assets: unknown[], expiresAt = "2099-01-01T00:00:00.000Z") {
+    return {
+      reviewedAt: "2026-09-01T00:00:00.000Z",
+      expiresAt,
+      assets,
+    } as unknown as Record<string, unknown>;
+  }
+
+  it("flags an asset whose rights expired even while the manifest is current", () => {
+    // approvedMediaFromManifest rejects on the asset's own deadlines, so a
+    // current manifest is no guarantee its media is still publishable.
+    const report = collectExpired(
+      currentCatalog,
+      manifestWith([{ assetId: "a1", releaseId: "r1", rights: { expiresAt: "2026-09-10T00:00:00.000Z" } }]),
+      at("2026-09-14"),
+    );
+
+    expect(report.manifest).toBeNull();
+    expect(report.assets).toHaveLength(1);
+    expect(report.assets[0]).toMatchObject({ assetId: "a1", field: "rights.expiresAt", daysOverdue: 4 });
+  });
+
+  it("flags an expired evidence deadline separately from the rights deadline", () => {
+    const report = collectExpired(
+      currentCatalog,
+      manifestWith([
+        {
+          assetId: "a2",
+          rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2026-09-05T00:00:00.000Z" },
+        },
+      ]),
+      at("2026-09-14"),
+    );
+
+    expect(report.assets.map((asset) => asset.field)).toEqual(["rights.evidenceExpiresAt"]);
+  });
+
+  it("leaves an asset alone while both of its deadlines are ahead", () => {
+    const report = collectExpired(
+      currentCatalog,
+      manifestWith([
+        { assetId: "a3", rights: { expiresAt: "2099-01-01T00:00:00.000Z", evidenceExpiresAt: "2099-01-01T00:00:00.000Z" } },
+      ]),
+      at("2026-09-14"),
+    );
+
+    expect(report.assets).toEqual([]);
+  });
+
+  it("reports an expired asset as overdue work rather than reporting all clear", () => {
+    const report = collectExpired(
+      currentCatalog,
+      manifestWith([{ assetId: "a4", rights: { expiresAt: "2026-09-10T00:00:00.000Z" } }]),
+      at("2026-09-14"),
+    );
+
+    const rendered = formatReport(report);
+    expect(rendered).not.toContain("within their re-review window");
+    expect(rendered).toContain("a4");
+  });
+});
+
+describe("remediation steps", () => {
+  const currentCatalog = {
+    sources: [
+      {
+        id: "always-current",
+        publisher: "P",
+        url: "https://example.test/",
+        purpose: "fixture",
+        freshness: { cadenceDays: 7, expiresOn: "2099-01-01", basis: "fixture" },
+        supportedClaims: [],
+      },
+    ],
+  } as unknown as { sources: readonly Record<string, unknown>[] };
+
+  it("omits source-page instructions when only the manifest expired", () => {
+    // Every step used to be about source pages and catalog fields the manifest
+    // does not have, so a manifest-only failure gave the operator nothing to do.
+    const report = collectExpired(
+      currentCatalog,
+      { reviewedAt: "2026-08-28T00:00:00.000Z", expiresAt: "2026-09-04T00:00:00.000Z", assets: [] } as unknown as Record<string, unknown>,
+      at("2026-09-14"),
+    );
+
+    const steps = formatReport(report).split("### To clear this")[1];
+    expect(steps).toBeDefined();
+    expect(steps).toContain("media-manifest.json");
+    expect(steps).not.toMatch(/source page/i);
+    expect(steps).not.toContain("cadenceDays");
+  });
+
+  it("does not tell the operator to invent a source modification date", () => {
+    const steps = formatReport(collectExpired(CATALOG, MANIFEST, at("2026-09-14"))).split("### To clear this")[1];
+
+    expect(steps).toMatch(/only if the page itself shows a new modification date/);
+  });
+});

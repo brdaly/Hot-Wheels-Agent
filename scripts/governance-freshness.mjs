@@ -78,7 +78,29 @@ export function collectExpired(catalog, manifest, asOf) {
       }
     : null;
 
-  return { asOf: today, sources, manifest: expiredManifest };
+  // `approvedMediaFromManifest` rejects an asset on its own rights deadlines,
+  // independently of the manifest's. Either can fall first, and when one does
+  // the asset silently drops to the placeholder while the manifest still looks
+  // current, so reporting only the manifest deadline leaves the job green over
+  // media that is already unpublishable.
+  const assets = (manifest.assets ?? [])
+    .flatMap((asset) => {
+      const deadlines = [
+        ["rights.expiresAt", asset.rights?.expiresAt],
+        ["rights.evidenceExpiresAt", asset.rights?.evidenceExpiresAt],
+      ].filter(([, value]) => typeof value === "string" && now >= startOfDay(value));
+
+      return deadlines.map(([field, value]) => ({
+        assetId: asset.assetId ?? asset.id ?? "(unidentified asset)",
+        releaseId: asset.releaseId ?? null,
+        field,
+        expiresAt: value,
+        daysOverdue: daysBetween(startOfDay(value), now),
+      }));
+    })
+    .sort((a, b) => b.daysOverdue - a.daysOverdue || a.assetId.localeCompare(b.assetId));
+
+  return { asOf: today, sources, manifest: expiredManifest, assets };
 }
 
 /**
@@ -89,7 +111,7 @@ export function collectExpired(catalog, manifest, asOf) {
  */
 export function formatReport(expired) {
   const lines = [];
-  const total = expired.sources.length + (expired.manifest ? 1 : 0);
+  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length;
 
   if (total === 0) {
     lines.push(`Every governed source and the media manifest are within their re-review window as of ${expired.asOf}.`);
@@ -137,13 +159,59 @@ export function formatReport(expired) {
     );
   }
 
+  if (expired.assets.length > 0) {
+    lines.push(`### Asset rights (${expired.assets.length} past deadline)`);
+    lines.push("");
+    lines.push("| Asset | Release | Field | Expired | Days overdue |");
+    lines.push("|---|---|---|---|---|");
+    for (const asset of expired.assets) {
+      lines.push(
+        `| \`${asset.assetId}\` | ${asset.releaseId ?? "—"} | \`${asset.field}\` | ${asset.expiresAt} | ${asset.daysOverdue} |`,
+      );
+    }
+    lines.push("");
+    lines.push(
+      "These fall independently of the manifest deadline. Each asset above is",
+      "already refused by `approvedMediaFromManifest` and is serving the local",
+      "placeholder, whatever the manifest's own review date says.",
+      "",
+    );
+  }
+
   lines.push("### To clear this");
   lines.push("");
+
+  // Only the steps that apply. When the manifest or an asset is the sole
+  // expired input, source-page instructions are not merely noise: they are the
+  // whole of the remediation, and they name fields the manifest does not have.
+  let step = 1;
+  if (expired.sources.length > 0) {
+    lines.push(
+      `${step++}. Open each source page above and re-verify the facts the entry claims to support.`,
+      `${step++}. Update \`retrievedOn\` and \`freshness.expiresOn\` to reflect that reading. Change`,
+      "   `sourceModifiedOn` only if the page itself shows a new modification date; where the",
+      "   publisher shows none it stays `null`, because inventing one fabricates provenance.",
+      `${step++}. If the cadence is not sustainable, raise \`cadenceDays\` and say why in`,
+      "   `freshness.basis`, rather than repeatedly pushing the date forward.",
+    );
+  }
+  if (expired.manifest) {
+    lines.push(
+      `${step++}. Re-review \`data/media-manifest.json\`: confirm every asset's rights, evidence and`,
+      "   territory still hold, then set `reviewedAt` to that review and `expiresAt` to the next",
+      "   deadline you will actually honour. The schema requires `expiresAt` to be after",
+      "   `reviewedAt`.",
+    );
+  }
+  if (expired.assets.length > 0) {
+    lines.push(
+      `${step++}. For each asset above, re-confirm the permission behind it with the rights holder`,
+      "   and record a new evidence version, then update the named field. Do not extend a",
+      "   rights or evidence deadline without fresh evidence: the migration requires a",
+      "   different evidence reference verified after the last approval.",
+    );
+  }
   lines.push(
-    "1. Open each page above and re-verify the facts the entry claims to support.",
-    "2. Update `retrievedOn`, `sourceModifiedOn` and `freshness.expiresOn` to reflect that reading.",
-    "3. If a weekly cadence is not sustainable, raise `cadenceDays` and say why in `freshness.basis`,",
-    "   rather than repeatedly pushing the date forward.",
     "",
     "_Opened automatically by the source review workflow._",
   );
@@ -167,7 +235,7 @@ async function main(argv) {
   process.stdout.write(report);
   if (reportArg) await writeFile(path.join(process.cwd(), reportArg), report, "utf8");
 
-  const total = expired.sources.length + (expired.manifest ? 1 : 0);
+  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length;
   process.exitCode = total === 0 ? 0 : 1;
 }
 
