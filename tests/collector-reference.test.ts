@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import hunts from "../data/hunt-map-2026.json";
 import { findChaseReference } from "../lib/collector-reference";
+import { findSourceByUrl } from "../lib/source-registry";
 import { chaseVerification, exactReleaseGate } from "../lib/scoring";
 import { ferrari } from "./fixtures";
 
@@ -71,7 +72,13 @@ describe("governed chase references", () => {
       chaseStatus: "regular_th" as const,
       chaseMarkersObserved: ["low_production_vehicle_symbol" as const],
     };
-    const afterExpiry = new Date("2026-09-05T00:00:00Z");
+    const expiresOn = findChaseReference(identification, REVIEWED).sources
+      .map((source) => findSourceByUrl(source.url)!.freshness.expiresOn)
+      .sort()[0];
+    const beforeExpiry = new Date(`${expiresOn}T23:59:59.999Z`);
+    const afterExpiry = new Date(beforeExpiry.getTime() + 1);
+    expect(findChaseReference(identification, beforeExpiry).match).toBe("exact_product_code");
+    expect(chaseVerification({ ...ferrari, identification }, beforeExpiry).verified).toBe(true);
     expect(findChaseReference(identification, afterExpiry).match).toBe("source_expired");
     expect(chaseVerification({ ...ferrari, identification }, afterExpiry).verified).toBe(false);
   });
@@ -88,4 +95,3 @@ describe("governed chase references", () => {
     expect(findChaseReference({ ...base, casting: "Wrong casting" }, REVIEWED).match).not.toBe("exact_product_code");
   });
 });
-
