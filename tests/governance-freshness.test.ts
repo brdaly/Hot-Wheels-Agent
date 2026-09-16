@@ -1,3 +1,7 @@
+import { spawnSync } from "node:child_process";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { collectExpired, formatReport } from "../scripts/governance-freshness.mjs";
 import { SOURCE_CATALOG, sourceFreshness } from "../lib/source-registry";
@@ -6,9 +10,72 @@ import manifest from "../data/media-manifest.json";
 const CATALOG = SOURCE_CATALOG as unknown as { sources: readonly Record<string, unknown>[] };
 const MANIFEST = manifest as unknown as Record<string, unknown>;
 
+// Date-specific report expectations belong to fixtures, not the review dates
+// in the shipped catalog, which change whenever its sources are re-reviewed.
+const REVIEW_CATALOG = {
+  sources: [
+    {
+      id: "orange-track-master-2027",
+      publisher: "Orange Track Diecast",
+      url: "https://orangetrackdiecast.com/2027-hot-wheels-master-list-of-all-lines/",
+      purpose: "Future-year watchlist fixture.",
+      freshness: { cadenceDays: 3, expiresOn: "2026-08-31", basis: "Sparse future-year working list." },
+      supportedClaims: ["watchlist_candidate"],
+    },
+    {
+      id: "hwtreasure-checklist",
+      publisher: "HWtreasure",
+      url: "https://www.hwtreasure.com/treasure-hunt-checklist/",
+      purpose: "Regular and Super Treasure Hunt checklist fixture.",
+      freshness: { cadenceDays: 7, expiresOn: "2026-09-04", basis: "Current-year lists can change." },
+      supportedClaims: ["checklist_membership"],
+    },
+  ],
+};
+const REVIEW_MANIFEST = {
+  reviewedAt: "2026-08-28T00:00:00.000Z",
+  expiresAt: "2026-09-04T00:00:00.000Z",
+  assets: [],
+};
+
 function at(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`);
 }
+
+describe("governance freshness CLI", () => {
+  it("reports overdue and current inputs from a checkout whose path contains spaces", () => {
+    const checkout = realpathSync(mkdtempSync(join(tmpdir(), "governance review ")));
+    try {
+      mkdirSync(join(checkout, "scripts"));
+      mkdirSync(join(checkout, "data"));
+      const script = join(checkout, "scripts", "governance-freshness.mjs");
+      copyFileSync(new URL("../scripts/governance-freshness.mjs", import.meta.url), script);
+      writeFileSync(join(checkout, "data", "source-catalog.json"), JSON.stringify(REVIEW_CATALOG));
+      writeFileSync(join(checkout, "data", "media-manifest.json"), JSON.stringify(REVIEW_MANIFEST));
+
+      const run = (asOf: string) => spawnSync(process.execPath, [
+        script, "--as-of", asOf, "--report", "governance-freshness.md",
+      ], { cwd: checkout, encoding: "utf8" });
+
+      const overdue = run("2026-09-14");
+      expect(overdue.error).toBeUndefined();
+      expect(overdue.status).toBe(1);
+      expect(overdue.stderr).toBe("");
+      expect(overdue.stdout).toContain("orange-track-master-2027");
+      expect(overdue.stdout).toContain("data/media-manifest.json");
+      expect(readFileSync(join(checkout, "governance-freshness.md"), "utf8")).toBe(overdue.stdout);
+
+      const current = run("2026-08-28");
+      expect(current.error).toBeUndefined();
+      expect(current.status).toBe(0);
+      expect(current.stderr).toBe("");
+      expect(current.stdout).toContain("within their re-review window");
+      expect(readFileSync(join(checkout, "governance-freshness.md"), "utf8")).toBe(current.stdout);
+    } finally {
+      rmSync(checkout, { recursive: true, force: true });
+    }
+  });
+});
 
 describe("collectExpired", () => {
   it("agrees with sourceFreshness on every catalog entry, so the report cannot drift from the gate", () => {
@@ -24,29 +91,29 @@ describe("collectExpired", () => {
   });
 
   it("treats a source as current through the last day of its window", () => {
-    const entry = SOURCE_CATALOG.sources.find((source) => source.freshness.expiresOn === "2026-08-31");
+    const entry = REVIEW_CATALOG.sources.find((source) => source.freshness.expiresOn === "2026-08-31");
     expect(entry, "fixture assumes an entry expiring 2026-08-31").toBeDefined();
 
-    expect(collectExpired(CATALOG, MANIFEST, at("2026-08-31")).sources.map((s) => s.id)).not.toContain(entry!.id);
-    expect(collectExpired(CATALOG, MANIFEST, at("2026-09-01")).sources.map((s) => s.id)).toContain(entry!.id);
+    expect(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-08-31")).sources.map((s) => s.id)).not.toContain(entry!.id);
+    expect(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-01")).sources.map((s) => s.id)).toContain(entry!.id);
   });
 
   it("counts days overdue from the expiry date", () => {
-    const report = collectExpired(CATALOG, MANIFEST, at("2026-09-13"));
+    const report = collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-13"));
     const entry = report.sources.find((source) => source.id === "orange-track-master-2027");
     expect(entry?.expiresOn).toBe("2026-08-31");
     expect(entry?.daysOverdue).toBe(13);
   });
 
   it("orders the most overdue entry first", () => {
-    const report = collectExpired(CATALOG, MANIFEST, at("2026-09-13"));
+    const report = collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-13"));
     const overdue = report.sources.map((source) => source.daysOverdue);
     expect(overdue).toEqual([...overdue].sort((a, b) => b - a));
   });
 
   it("flags the media manifest at the instant it expires, matching the media gate", () => {
-    expect(collectExpired(CATALOG, MANIFEST, new Date("2026-09-03T23:59:59.999Z")).manifest).toBeNull();
-    expect(collectExpired(CATALOG, MANIFEST, new Date("2026-09-04T00:00:00.000Z")).manifest).not.toBeNull();
+    expect(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, new Date("2026-09-03T23:59:59.999Z")).manifest).toBeNull();
+    expect(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, new Date("2026-09-04T00:00:00.000Z")).manifest).not.toBeNull();
   });
 
   it("rejects an invalid reference date rather than reporting everything as current", () => {
@@ -56,9 +123,9 @@ describe("collectExpired", () => {
 
 describe("formatReport", () => {
   it("names every expired source, its page and how far overdue it is", () => {
-    const report = formatReport(collectExpired(CATALOG, MANIFEST, at("2026-09-13")));
+    const report = formatReport(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-13")));
 
-    for (const source of collectExpired(CATALOG, MANIFEST, at("2026-09-13")).sources) {
+    for (const source of collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-13")).sources) {
       expect(report).toContain(source.id);
       expect(report).toContain(source.url);
     }
@@ -67,13 +134,13 @@ describe("formatReport", () => {
   });
 
   it("says so plainly when nothing is overdue", () => {
-    const report = formatReport(collectExpired(CATALOG, MANIFEST, at("2026-08-28")));
+    const report = formatReport(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-08-28")));
     expect(report).toContain("within their re-review window");
     expect(report).not.toContain("Days overdue");
   });
 
   it("tells the reader to re-verify rather than re-date", () => {
-    const report = formatReport(collectExpired(CATALOG, MANIFEST, at("2026-09-13")));
+    const report = formatReport(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-13")));
     expect(report).toContain("re-verify the facts");
     expect(report).toContain("rather than repeatedly pushing the date forward");
   });
@@ -219,7 +286,7 @@ describe("remediation steps", () => {
   });
 
   it("does not tell the operator to invent a source modification date", () => {
-    const steps = formatReport(collectExpired(CATALOG, MANIFEST, at("2026-09-14"))).split("### To clear this")[1];
+    const steps = formatReport(collectExpired(REVIEW_CATALOG, REVIEW_MANIFEST, at("2026-09-14"))).split("### To clear this")[1];
 
     expect(steps).toMatch(/only if the page itself shows a new modification date/);
   });
