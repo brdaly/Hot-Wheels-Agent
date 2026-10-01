@@ -2,18 +2,21 @@
 
 ## Current early-prototype boundary
 
-The early prototype remotely displays 30 attributed HWheadline/HWJamey reference images to visitors. It links each
-image to the credited original and does not copy, proxy, transform, or rehost the files. The product carries a visible
-prototype, ownership, attribution, independence, and non-endorsement notice.
+The Chase Grid uses generic local silhouettes for all 30 entries and provides attributed links to photographs on
+HWheadline/HWJamey source pages. It does not fetch, embed, copy, proxy, transform, or rehost those photographs. The
+publisher image URLs in `data/hunt-reference-images.ts` are retained only as a schedule for rights review and permission
+requests. The browser image policy allows only same-origin images, local blobs, and data URLs.
 
-This is a product decision, not evidence of permission. Attribution and an early-stage label do not create a license.
-Do not use these photographs in advertising, social cards, downloads, local derivatives, paid-member marketing, or a
-commercial/general-availability launch until the approval workflow below is complete. Replace an image promptly if the
-publisher objects or the source becomes unavailable.
+This boundary is implemented in the local remediation prepared on **October 1, 2026**. That preparation does not establish
+that the change has been merged or deployed. No written publisher permission was supplied for this remediation.
+
+Keep the link-only presentation unless the approval workflow below is complete. Attribution and an early-stage label
+do not create a license. Any embedding, advertising, social cards, downloads, local derivatives, or paid-member marketing
+using these photographs must be covered by documented permission for that use.
 
 ## Recommended rights path
 
-Start with **HWheadline / HWJamey**, because it is the credited source used for all 30 early-prototype references.
+Start with **HWheadline / HWJamey**, because it is the credited source linked from all 30 Chase Grid entries.
 Ask whether HWheadline controls each photograph and can authorize remote display or provide licensed thumbnail files.
 Use its public contact channel and attach the exact URL schedule from `data/hunt-reference-images.ts`.
 
@@ -60,7 +63,7 @@ implications.
 4. Bind each photograph to the exact verified release fingerprint, photographer/publisher, attribution, territory, term,
    transformations, and takedown contact.
 5. Create metadata-stripped responsive derivatives and review them against the exact release.
-6. For general availability, publish only assets that pass the governed-media resolver; retain the neutral placeholder
+6. Publish only assets that pass the governed-media resolver; retain the neutral placeholder
    for every other entry.
 7. Remove or revoke assets promptly if permission expires, is withdrawn, or the release identity changes.
 8. Repeat the process for each new model year unless the agreement expressly covers future releases.
@@ -68,10 +71,10 @@ implications.
 ## Public notice
 
 > Hot Wheels® and related trademarks, names, packaging, and product rights are owned or controlled by Mattel, Inc. and
-> its licensors. Individual photographs and catalog materials remain the property of their credited rights holders and
-> are displayed as attributed remote references during this early prototype. Attribution does not transfer image rights
-> or imply endorsement. Daly Ventures Collector is independent and is not affiliated with, sponsored by, or endorsed by
-> Mattel, Inc. Written permission will be sought before broader or commercial use.
+> its licensors. The Chase Grid displays generic local silhouettes and links to photographs on credited publisher pages;
+> it does not embed those photographs. Individual photographs and catalog materials remain the property of their credited
+> rights holders. Attribution does not transfer image rights or imply endorsement. Daly Ventures Collector is independent
+> and is not affiliated with, sponsored by, or endorsed by Mattel, Inc.
 
 Any mandatory wording supplied by Mattel or the image licensor controls. A monetized launch may warrant a short review
 by U.S. intellectual-property counsel.
