@@ -1,6 +1,6 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- remote release references and local object URLs are intentional */
+/* eslint-disable @next/next/no-img-element -- local placeholders and object URLs are intentional */
 import { DragEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import packageMetadata from "@/package.json";
 import carSuggestions from "@/data/car-search-index.json";
@@ -196,15 +196,13 @@ const huntReferenceImages = Object.fromEntries(HUNT_REFERENCE_IMAGES.map((image)
 
 function HuntCar({ kind, car, photo }: { kind: "super" | "regular"; car: HuntCarEntry; photo: HuntReferenceImage }) {
   const label = kind === "super" ? "SUPER TREASURE HUNT" : "TREASURE HUNT";
-  const image = <div className="hunt-image attributed-reference"><img src={photo.imageUrl} alt={`${car.name} 2026 ${label.toLowerCase()} reference photograph`} loading="lazy" decoding="async" referrerPolicy="no-referrer"/><span>{label}</span></div>;
-
   return (
     <article className={`hunt-car ${kind}`}>
-      <a className="hunt-image-link" href={photo.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Open credited photograph for ${car.name}`}>{image}</a>
+      <div className="hunt-image"><img src="/hunt-placeholder.svg" alt="" width={800} height={520} loading="lazy" decoding="async"/><span>{label}</span></div>
       <div className="hunt-copy">
         <small>{car.part}</small>
         <h3>{car.name}</h3>
-        <p className="hunt-attribution">{photo.attribution} · <a href={photo.sourceUrl} target="_blank" rel="noreferrer">View original ↗</a></p>
+        <p className="hunt-attribution">{photo.attribution} (on source page) · <a href={photo.sourceUrl} target="_blank" rel="noreferrer" aria-label={`View photo on HWheadline for ${car.name} (opens in new tab)`}>View photo on HWheadline ↗</a></p>
         <a className="hunt-reference-link" href={car.sourceUrl} target="_blank" rel="noreferrer">Verify release at HWtreasure ↗</a>
       </div>
     </article>
@@ -635,14 +633,14 @@ export default function Home() {
 
       <section id="panel-hunts" role="tabpanel" aria-labelledby="tab-hunts" className="data-section chase-section tab-panel" hidden={tab !== "hunts"}>
         <div className="section-head"><div><p className="eyebrow">2026 · ATTRIBUTED REFERENCE INDEX</p><h2>The Chase Grid</h2></div><p>Thirty Super Treasure Hunt and regular Treasure Hunt leads, organized by mainline case. Open the attributed source page before calling a chase.</p></div>
-        <div className="private-image-notice" role="note"><strong>PRIVATE PROTOTYPE</strong><span>Early demonstration · Attributed remote reference photography · Independent and not affiliated with Mattel</span></div>
+        <div className="private-image-notice" role="note"><strong>PUBLIC PROTOTYPE</strong><span>Generic silhouettes · Open the credited source pages for photographs · Independent and not affiliated with Mattel</span></div>
         <div className="chase-methodology" aria-labelledby="chase-method-title">
           <div><p className="eyebrow">HOW TO USE THIS GRID</p><h3 id="chase-method-title">A lead index—not an authentication result.</h3></div>
           <ol><li><b>Locate</b><span>Use case placement and product code as starting clues.</span></li><li><b>Open</b><span>Review the attributed release page for exact photography.</span></li><li><b>Cross-check</b><span>Confirm wheels, finish, markings and packaging against a second source.</span></li><li><b>Reverify</b><span>Entries can change; use the update date and report corrections.</span></li></ol>
         </div>
         <div className="hunt-legend"><span><i className="super-dot"/>Super Treasure Hunt</span><span><i className="regular-dot"/>Treasure Hunt</span><small>{hunts.cases.length * 2} targets · updated {hunts.asOf}</small></div>
         <div className="hunt-grid">{hunts.cases.map((item) => <article className="hunt-case" key={item.case}><div className="case-label"><span>MAINLINE</span><strong>CASE {item.case}</strong></div>{([ ["super", item.super], ["regular", item.treasure] ] as const).map(([kind, car]) => <HuntCar kind={kind} car={car} photo={huntReferenceImages[car.part]} key={car.part}/>)}</article>)}</div>
-        <p className="source-note">Hot Wheels® trademarks, names, packaging, and related product rights are owned or controlled by Mattel, Inc. Photograph rights remain with HWheadline/HWJamey or the applicable credited rights holder. This early prototype remotely displays attributed reference images from their original host; Daly Ventures does not claim ownership, affiliation, endorsement, or a transfer of image rights. Open each credited original and cross-check status and placement with the <a href="https://www.hwtreasure.com/treasure-hunt-checklist/" target="_blank" rel="noreferrer">HWtreasure checklist</a> and <a href="https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/" target="_blank" rel="noreferrer">Orange Track 2026 master list</a>.</p>
+        <p className="source-note">Hot Wheels® trademarks, names, packaging, and related product rights are owned or controlled by Mattel, Inc. Photograph rights remain with HWheadline/HWJamey or the applicable credited rights holder. The Chase Grid displays generic local silhouettes and links to photographs on the credited publisher pages; it does not embed those photographs. Daly Ventures does not claim ownership, affiliation, endorsement, or a transfer of image rights. Open each credited source and cross-check status and placement with the <a href="https://www.hwtreasure.com/treasure-hunt-checklist/" target="_blank" rel="noreferrer">HWtreasure checklist</a> and <a href="https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/" target="_blank" rel="noreferrer">Orange Track 2026 master list</a>.</p>
       </section>
 
       <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" className="data-section tab-panel" hidden={tab !== "market"}><div className="section-head"><div><p className="eyebrow">UNITED STATES · {retail.asOf}</p><h2>US retail gates</h2></div><p>First-party shelf benchmarks for disciplined buying. These are retail reference points—not secondary-market valuations.</p></div><div className="snapshot-status"><span className={`freshness-chip ${retailFreshness.status}`}>{retailFreshness.label}</span><p>Recheck exact SKU, store and availability before purchase.</p></div><div className="price-grid">{retail.benchmarks.map((row) => <article key={row.category}><small>{pretty(row.category)}</small><strong>${row.normalPrice.toFixed(2)}</strong><p>{row.retailer}</p><span>Lower-price checkpoint ≤ ${row.strongBuyAtOrBelow.toFixed(2)}</span><a href={row.sourceUrl} target="_blank" rel="noreferrer">Retail source ↗</a></article>)}</div><div className="notes">{retail.notes.map((note) => <p key={note}>↳ {note}</p>)}</div></section>

@@ -58,8 +58,9 @@ export default function DisclaimerPage() {
               attribution and independent verification. Individual photographs and catalog materials may be separately
               copyrighted by the credited photographer or publisher. Daly Ventures claims no ownership in those
               materials. A link or attribution does not itself transfer image rights, grant permission, or imply
-              endorsement. This early prototype remotely displays attributed publisher images from their original host
-              and links to the credited source. Written permission will be sought before broader or commercial use.
+              endorsement. The Chase Grid displays generic local silhouettes and links to photographs on the credited
+              publisher pages. It does not embed those photographs. Any future display of publisher photographs
+              requires documented permission for the intended use.
             </p>
           </section>
 

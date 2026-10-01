@@ -7,8 +7,10 @@ export type HuntReferenceImage = {
 };
 
 /**
- * Early-prototype image references. These remain on the credited publisher's host
- * and are displayed with attribution and a link to the original source page.
+ * Link-only photograph references and a URL schedule for permission requests.
+ * The Chase Grid displays local placeholders and links to these source pages;
+ * imageUrl is retained as review metadata and must not be fetched or embedded
+ * without documented permission for the intended use.
  */
 export const HUNT_REFERENCE_IMAGES: readonly HuntReferenceImage[] = [
   { part: "JJM15", name: "Drift-Ender", sourceUrl: "https://hwheadline.com/drift-ender-2026-hot-wheels-super-treasure-hunt/", imageUrl: "https://storage.ghost.io/c/81/4f/814f42c9-9554-47a0-a5c0-499b2f9606cf/content/images/2025/05/2026-STH-Drift-Ender-1.jpg", attribution: "Photo: HWheadline / HWJamey" },
