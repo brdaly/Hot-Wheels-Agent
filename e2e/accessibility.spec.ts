@@ -1,12 +1,18 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { HUNT_REFERENCE_IMAGES } from "../data/hunt-reference-images";
 
 test("core collector workflow is navigable and has no serious accessibility violations", async ({ page }) => {
   let analyzeRequests = 0;
+  const imageRequests: string[] = [];
   page.on("request", (request) => {
     if (new URL(request.url()).pathname === "/api/analyze") analyzeRequests += 1;
+    if (request.resourceType() === "image") imageRequests.push(request.url());
   });
-  await page.goto("/");
+  const response = await page.goto("/");
+  const imagePolicy = response?.headers()["content-security-policy"]?.split(";")
+    .map((directive) => directive.trim()).find((directive) => directive.startsWith("img-src "));
+  expect(imagePolicy).toBe("img-src 'self' blob: data:");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Built for");
   await expect(page.getByRole("heading", { name: "See how the analyst reaches a decision." })).toBeVisible();
   await expect(page.getByText("PRECOMPUTED RULES DEMO")).toBeVisible();
@@ -21,8 +27,19 @@ test("core collector workflow is navigable and has no serious accessibility viol
     "href",
     "https://hwheadline.com/drift-ender-2026-hot-wheels-super-treasure-hunt/",
   );
-  await expect(page.getByRole("img", { name: /Drift-Ender 2026 super treasure hunt reference photograph/i })).toBeVisible();
-  await expect(page.getByText("Photo: HWheadline / HWJamey").first()).toBeVisible();
+  await expect(page.locator(".hunt-car img")).toHaveCount(30);
+  await expect(page.getByRole("link", { name: /View photo on HWheadline for/ })).toHaveCount(30);
+  for (const photo of HUNT_REFERENCE_IMAGES) {
+    const card = page.locator(".hunt-car").filter({ has: page.getByText(photo.part, { exact: true }) });
+    const placeholder = card.locator("img");
+    await expect(placeholder).toHaveAttribute("src", "/hunt-placeholder.svg");
+    await expect(placeholder).toHaveAttribute("alt", "");
+    await expect(card.getByRole("link", { name: /View photo on HWheadline for/ })).toHaveAttribute("href", photo.sourceUrl);
+    await placeholder.scrollIntoViewIfNeeded();
+    await expect.poll(() => placeholder.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  }
+  await expect(page.getByText("Photo: HWheadline / HWJamey (on source page)").first()).toBeVisible();
+  expect(imageRequests.filter((url) => new URL(url).origin !== new URL(page.url()).origin)).toEqual([]);
 
   await page.getByRole("tab", { name: "US Retail" }).press("ArrowLeft");
   await expect(page.getByRole("tab", { name: "Chase Grid" })).toBeFocused();
