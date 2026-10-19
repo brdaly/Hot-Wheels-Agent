@@ -52,11 +52,24 @@ export default function PrivacyPage() {
           <section>
             <h2>Reference media</h2>
             <p>
-              Chase Grid photographs are requested directly from the credited publisher&apos;s image host; Daly Ventures
-              does not upload or proxy those files. The publisher may receive the visitor&apos;s IP address and browser
-              information when the image loads, while the application sends no referrer. Attribution and a source link
-              do not transfer image rights. A separately hosted Daly Ventures rendition remains eligible for display
-              only after its permission or license evidence and review status have been recorded.
+              The Chase Grid shows a locally hosted placeholder image and a text credit; it does not load a photograph
+              from the publisher. No request reaches the publisher&apos;s image host when a visitor views the grid, so
+              the publisher receives no IP address or browser information, and the content security policy restricts
+              images to this origin. Attribution and a source link do not transfer image rights. A separately hosted
+              Daly Ventures rendition becomes eligible for display only after its permission or license evidence and
+              review status have been recorded.
+            </p>
+          </section>
+
+          <section>
+            <h2>Analytics</h2>
+            <p>
+              Every page loads Vercel Analytics, which records a page view for each visit. It is a third-party
+              processor operating on Daly Ventures&apos; behalf, it sets no cookie, and it is used to count traffic
+              rather than to identify or track an individual visitor across sites. Requests go to
+              <code> va.vercel-scripts.com</code> and <code> va.vercel-analytics.com</code>; the content security
+              policy permits those two hosts and no other third party. This applies to the public demo as well as the
+              owner workspace.
             </p>
           </section>
 
