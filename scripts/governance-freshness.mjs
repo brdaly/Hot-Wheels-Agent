@@ -48,7 +48,7 @@ function daysBetween(from, to) {
  * @param {Date} asOf
  * @returns {{asOf: string, sources: Array<Record<string, any>>, manifest: Record<string, any> | null}}
  */
-export function collectExpired(catalog, manifest, asOf) {
+export function collectExpired(catalog, manifest, asOf, snapshots = []) {
   const now = asOf.getTime();
   if (Number.isNaN(now)) throw new RangeError("asOf must be a valid date");
   const today = asOf.toISOString().slice(0, 10);
@@ -77,6 +77,25 @@ export function collectExpired(catalog, manifest, asOf) {
         daysOverdue: daysBetween(manifestExpiresAt, now),
       }
     : null;
+
+  // The retail snapshots are the second fail-closed control and were not
+  // checked here at all, so the price gate could go dark for weeks without
+  // appearing in this report. `snapshotFreshness` in lib/pricing.ts marks a
+  // snapshot stale once its age exceeds RETAIL_SNAPSHOT_TTL_DAYS, and
+  // `evaluateUSPrice`/`evaluateIrelandPrice` then short-circuit to verdict
+  // "unknown" before any benchmark comparison -- for every price, every
+  // category, in that market.
+  const staleSnapshots = snapshots
+    .filter((snapshot) => snapshot.ageDays > snapshot.ttlDays)
+    .map((snapshot) => ({
+      file: snapshot.file,
+      market: snapshot.market,
+      asOf: snapshot.asOf,
+      ageDays: snapshot.ageDays,
+      ttlDays: snapshot.ttlDays,
+      daysOverdue: snapshot.ageDays - snapshot.ttlDays,
+    }))
+    .sort((a, b) => b.daysOverdue - a.daysOverdue || a.file.localeCompare(b.file));
 
   // `approvedMediaFromManifest` rejects an asset on its own rights deadlines,
   // independently of the manifest's. Either can fall first, and when one does
@@ -112,7 +131,7 @@ export function collectExpired(catalog, manifest, asOf) {
     })
     .sort((a, b) => b.daysOverdue - a.daysOverdue || a.assetId.localeCompare(b.assetId));
 
-  return { asOf: today, sources, manifest: expiredManifest, assets };
+  return { asOf: today, sources, manifest: expiredManifest, assets, snapshots: staleSnapshots };
 }
 
 /**
@@ -123,21 +142,23 @@ export function collectExpired(catalog, manifest, asOf) {
  */
 export function formatReport(expired) {
   const lines = [];
-  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length;
+  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length + expired.snapshots.length;
 
   if (total === 0) {
-    lines.push(`Every governed source and the media manifest are within their re-review window as of ${expired.asOf}.`);
+    lines.push(`Every governed source, the media manifest and every retail price snapshot are within their re-review window as of ${expired.asOf}.`);
     return `${lines.join("\n")}\n`;
   }
 
   lines.push(`## Governed inputs past re-review as of ${expired.asOf}`);
   lines.push("");
   lines.push(
-    "These are fail-closed controls, so the application is already degrading:",
-    "an expired catalog entry makes `findChaseReference` answer `source_expired`",
-    "instead of an exact product code, and an expired media manifest releases no",
-    "assets at all. Re-dating without re-reading the page turns the control into a",
-    "rubber stamp, so each entry below needs its facts re-verified at the source.",
+    "These are fail-closed controls, so each expiry below withholds a result the",
+    "application would otherwise give. An expired catalog entry makes",
+    "`findChaseReference` answer `source_expired` instead of an exact product",
+    "code. A stale retail snapshot makes `evaluateUSPrice` and",
+    "`evaluateIrelandPrice` answer `unknown` for every price in that market.",
+    "Re-dating without re-reading the source turns the control into a rubber",
+    "stamp, so each entry below needs its facts re-verified at the source.",
     "",
   );
 
@@ -165,8 +186,36 @@ export function formatReport(expired) {
     lines.push("");
     lines.push(
       `\`data/media-manifest.json\` expired ${expired.manifest.expiresAt} (${expired.manifest.daysOverdue} days overdue, reviewed ${expired.manifest.reviewedAt}, ${expired.manifest.assetCount} assets).`,
-      "While it is expired `approvedMediaFromManifest` returns nothing, so every",
-      "reference image falls back to the local placeholder.",
+    );
+    // Claiming live degradation over an empty manifest is the overstatement
+    // this repository exists to avoid: with no approved assets there is
+    // nothing for `approvedMediaFromManifest` to withhold, and the Chase Grid
+    // served local placeholders before the expiry just as it does after.
+    lines.push(
+      expired.manifest.assetCount > 0
+        ? "While it is expired `approvedMediaFromManifest` returns nothing, so every reference image falls back to the local placeholder."
+        : "The manifest holds no approved assets, so nothing a visitor sees changes while it is expired. Re-reviewing it renews the record, not a live capability.",
+      "",
+    );
+  }
+
+  if (expired.snapshots.length > 0) {
+    lines.push(`### Retail price snapshots (${expired.snapshots.length} stale)`);
+    lines.push("");
+    lines.push("| Snapshot | Market | Observed | Age | TTL | Days over |");
+    lines.push("|---|---|---|---|---|---|");
+    for (const snapshot of expired.snapshots) {
+      lines.push(
+        `| \`${snapshot.file}\` | ${snapshot.market} | ${snapshot.asOf} | ${snapshot.ageDays}d | ${snapshot.ttlDays}d | ${snapshot.daysOverdue} |`,
+      );
+    }
+    lines.push("");
+    lines.push(
+      "While a snapshot is stale the price gate for that market returns `unknown`",
+      "for every price and every category, so the verdict the README advertises is",
+      "withheld. Refreshing means re-observing shelf prices and writing a new dated",
+      "snapshot file, then updating the import in `lib/pricing.ts` -- not editing",
+      "the `asOf` of the existing one.",
       "",
     );
   }
@@ -215,6 +264,17 @@ export function formatReport(expired) {
       "   `reviewedAt`.",
     );
   }
+  if (expired.snapshots.length > 0) {
+    lines.push(
+      `${step++}. Re-observe shelf prices for each stale market and write a NEW dated snapshot`,
+      "   file, then point the import in `lib/pricing.ts` at it. Editing `asOf` on the existing",
+      "   file clears this report without re-observing a single price, which is the rubber stamp",
+      "   this control exists to prevent.",
+      `${step++}. If 45 days is not a cadence these snapshots can hold, raise`,
+      "   `RETAIL_SNAPSHOT_TTL_DAYS` in `lib/pricing.ts` deliberately rather than letting the",
+      "   price gate sit dark between refreshes.",
+    );
+  }
   if (expired.assets.length > 0) {
     lines.push(
       `${step++}. For each asset above, re-confirm the permission behind it with the rights holder`,
@@ -231,23 +291,71 @@ export function formatReport(expired) {
   return `${lines.join("\n")}\n`;
 }
 
+// The TTL and the snapshot filenames are read out of lib/pricing.ts rather
+// than restated here. A second copy of either would drift, and drift in this
+// script is what let the price gate stay dark unreported: the snapshot
+// filenames carry their observation date, so they change every time the
+// snapshots are genuinely refreshed.
+async function readRetailSnapshots(asOf) {
+  // A checkout without `lib/` is not the application -- the CLI test drives the
+  // script from a directory holding only `scripts/` and `data/` -- so there is
+  // no price gate in it to be dark, and nothing to report. But if the module is
+  // present and this script cannot read the TTL or the imports out of it, that
+  // is drift between the control and its monitor, which is precisely what let
+  // the price gate sit dark unreported. That throws rather than skipping.
+  let pricing;
+  try {
+    pricing = await readFile(path.join(ROOT, "lib/pricing.ts"), "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+
+  const ttlMatch = /RETAIL_SNAPSHOT_TTL_DAYS\s*=\s*(\d+)/.exec(pricing);
+  if (!ttlMatch) {
+    throw new Error("Could not read RETAIL_SNAPSHOT_TTL_DAYS from lib/pricing.ts");
+  }
+  const ttlDays = Number(ttlMatch[1]);
+
+  const imports = [...pricing.matchAll(/^import\s+(\w+)\s+from\s+"\.\.\/(data\/[\w.-]*retail[\w.-]*\.json)";/gmu)];
+  if (imports.length === 0) {
+    throw new Error("Could not find any retail snapshot import in lib/pricing.ts");
+  }
+
+  return Promise.all(imports.map(async ([, market, file]) => {
+    const snapshot = JSON.parse(await readFile(path.join(ROOT, file), "utf8"));
+    const observed = Date.parse(`${snapshot.asOf}T00:00:00Z`);
+    if (!Number.isFinite(observed)) {
+      throw new Error(`${file} has an unreadable asOf: ${JSON.stringify(snapshot.asOf)}`);
+    }
+    return {
+      file,
+      market,
+      asOf: snapshot.asOf,
+      ttlDays,
+      ageDays: Math.floor((asOf.getTime() - observed) / DAY_MS),
+    };
+  }));
+}
+
 async function main(argv) {
   const asOfArg = argv[argv.indexOf("--as-of") + 1];
   const reportArg = argv.includes("--report") ? argv[argv.indexOf("--report") + 1] : null;
   const asOf = argv.includes("--as-of") ? new Date(`${asOfArg}T00:00:00.000Z`) : new Date();
 
-  const [catalog, manifest] = await Promise.all([
+  const [catalog, manifest, snapshots] = await Promise.all([
     readFile(path.join(ROOT, "data/source-catalog.json"), "utf8").then(JSON.parse),
     readFile(path.join(ROOT, "data/media-manifest.json"), "utf8").then(JSON.parse),
+    readRetailSnapshots(asOf),
   ]);
 
-  const expired = collectExpired(catalog, manifest, asOf);
+  const expired = collectExpired(catalog, manifest, asOf, snapshots);
   const report = formatReport(expired);
 
   process.stdout.write(report);
   if (reportArg) await writeFile(path.join(process.cwd(), reportArg), report, "utf8");
 
-  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length;
+  const total = expired.sources.length + (expired.manifest ? 1 : 0) + expired.assets.length + expired.snapshots.length;
   process.exitCode = total === 0 ? 0 : 1;
 }
 

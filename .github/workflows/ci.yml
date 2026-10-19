@@ -32,9 +32,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
       - run: npm ci
-      - run: npm audit --audit-level=high
+
+      # The application checks run first, and both audits last. Scoping the
+      # audit is not enough on its own: an audit anywhere upstream of these
+      # steps couples "a dependency has an advisory" to "we do not know whether
+      # the code works", because a failing `- run:` aborts the job. That
+      # coupling is what cost this repository every lint, typecheck and test
+      # result on every pull request since 2026-10-08, and the whole
+      # accessibility job with them. Narrowing the gate to production only
+      # would have left the same outage one production advisory away -- and six
+      # arrived in that window. Ordering removes the coupling; the job still
+      # fails on a real finding, it just reports the code's state too.
       - run: npm run check
       - run: npm run test:coverage
+
+      # Production dependencies gate the build.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      # Reported, not enforced. The one advisory left in the dev tree is braces
+      # GHSA-vfj7-8cjw-p6xm, which names >=3.0.4 as patched when 3.0.3 is the
+      # newest version ever published (2024-05-21). micromatch 4.0.8 requires
+      # braces ^3.0.3 and fast-glob 3.3.3 requires micromatch ^4.0.8, both
+      # already latest, so nothing downstream can satisfy it -- npm's only
+      # proposed remedy is downgrading eslint-config-next to 14.2.35, two
+      # majors behind the framework, to lint with. Revisit if braces publishes
+      # above 3.0.3, or if this step reports something outside that chain.
+      - name: Audit full dependency tree (report only)
+        continue-on-error: true
+        run: npm audit --audit-level=high
 
   accessibility:
     needs: verify
