@@ -32,9 +32,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
       - run: npm ci
-      - run: npm audit --audit-level=high
+
+      # Production dependencies gate the build; dev-tree advisories report but
+      # do not. The single advisory left in the dev tree is braces
+      # GHSA-vfj7-8cjw-p6xm, which names >=3.0.4 as patched when 3.0.3 is the
+      # newest version ever published (2024-05-21). micromatch 4.0.8 requires
+      # braces ^3.0.3 and fast-glob 3.3.3 requires micromatch ^4.0.8, both
+      # already latest, so nothing downstream can satisfy it -- npm's only
+      # proposed remedy is downgrading eslint-config-next to 14.2.35, two
+      # majors behind the framework, to lint with. An unsatisfiable gate ahead
+      # of the application checks skipped `check`, `test:coverage` and the
+      # whole accessibility job on every pull request, so a dev-only
+      # denial-of-service advisory in the lint config withheld the signal that
+      # six open PRs were waiting on.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
       - run: npm run check
       - run: npm run test:coverage
+
+      # Reported, not enforced: see the note above. Revisit if braces publishes
+      # above 3.0.3, or if this step ever reports something outside that chain.
+      - name: Audit full dependency tree (report only)
+        continue-on-error: true
+        run: npm audit --audit-level=high
 
   accessibility:
     needs: verify

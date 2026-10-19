@@ -291,3 +291,128 @@ describe("remediation steps", () => {
     expect(steps).toMatch(/only if the page itself shows a new modification date/);
   });
 });
+
+describe("retail price snapshots", () => {
+  const EMPTY_CATALOG = { sources: [] } as unknown as { sources: readonly Record<string, unknown>[] };
+  const CURRENT_MANIFEST = {
+    reviewedAt: "2099-01-01T00:00:00.000Z",
+    expiresAt: "2099-12-31T00:00:00.000Z",
+    assets: [],
+  } as unknown as Record<string, unknown>;
+  const at = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
+  const snapshots = [
+    { file: "data/us-retail-2026-08-27.json", market: "unitedStates", asOf: "2026-08-27", ttlDays: 45, ageDays: 53 },
+    { file: "data/ireland-retail-2026-08-02.json", market: "ireland", asOf: "2026-08-02", ttlDays: 45, ageDays: 78 },
+  ];
+
+  it("reports a snapshot past its TTL, worst first", () => {
+    const report = collectExpired(EMPTY_CATALOG, CURRENT_MANIFEST, at("2026-10-19"), snapshots);
+    expect(report.snapshots.map((s) => s.file)).toEqual([
+      "data/ireland-retail-2026-08-02.json",
+      "data/us-retail-2026-08-27.json",
+    ]);
+    expect(report.snapshots[0].daysOverdue).toBe(33);
+    expect(report.snapshots[1].daysOverdue).toBe(8);
+  });
+
+  it("leaves a snapshot inside its TTL alone, including exactly at the boundary", () => {
+    const boundary = [{ ...snapshots[0], ageDays: 45 }];
+    expect(collectExpired(EMPTY_CATALOG, CURRENT_MANIFEST, at("2026-10-19"), boundary).snapshots).toEqual([]);
+    const over = [{ ...snapshots[0], ageDays: 46 }];
+    expect(collectExpired(EMPTY_CATALOG, CURRENT_MANIFEST, at("2026-10-19"), over).snapshots).toHaveLength(1);
+  });
+
+  it("a stale snapshot alone is enough to make the report say so", () => {
+    // Before this, the script read only the catalog and the manifest, so the
+    // price gate could be dark in both markets while the report said
+    // everything was within its window.
+    const report = formatReport(collectExpired(EMPTY_CATALOG, CURRENT_MANIFEST, at("2026-10-19"), snapshots));
+    expect(report).not.toMatch(/within their re-review window/);
+    expect(report).toMatch(/Retail price snapshots \(2 stale\)/);
+    expect(report).toMatch(/evaluateIrelandPrice/);
+  });
+
+  it("says nothing about snapshots when none are stale", () => {
+    const report = formatReport(collectExpired(EMPTY_CATALOG, CURRENT_MANIFEST, at("2026-10-19"), []));
+    expect(report).toMatch(/within their re-review window/);
+    expect(report).not.toMatch(/Retail price snapshot/);
+  });
+
+  it("does not claim visible degradation for a manifest holding no assets", () => {
+    const expiredEmpty = {
+      reviewedAt: "2026-09-14T18:16:50.000Z",
+      expiresAt: "2026-09-21T18:16:50.000Z",
+      assets: [],
+    } as unknown as Record<string, unknown>;
+    const report = formatReport(collectExpired(EMPTY_CATALOG, expiredEmpty, at("2026-10-19"), []));
+    expect(report).toMatch(/holds no approved assets/);
+    expect(report).not.toMatch(/falls back to the local placeholder/);
+  });
+});
+
+describe("reading the price configuration out of lib/pricing.ts", () => {
+  const fixture = (pricing: string | null) => {
+    const checkout = realpathSync(mkdtempSync(join(tmpdir(), "governance pricing ")));
+    mkdirSync(join(checkout, "scripts"));
+    mkdirSync(join(checkout, "data"));
+    copyFileSync(
+      new URL("../scripts/governance-freshness.mjs", import.meta.url),
+      join(checkout, "scripts", "governance-freshness.mjs"),
+    );
+    writeFileSync(join(checkout, "data", "source-catalog.json"), JSON.stringify(REVIEW_CATALOG));
+    writeFileSync(join(checkout, "data", "media-manifest.json"), JSON.stringify(REVIEW_MANIFEST));
+    if (pricing !== null) {
+      mkdirSync(join(checkout, "lib"));
+      writeFileSync(join(checkout, "lib", "pricing.ts"), pricing);
+    }
+    return checkout;
+  };
+  const run = (checkout: string, asOf: string) =>
+    spawnSync(process.execPath, [join(checkout, "scripts", "governance-freshness.mjs"), "--as-of", asOf], {
+      cwd: checkout,
+      encoding: "utf8",
+    });
+
+  it("treats an absent lib/pricing.ts as a checkout with no price gate", () => {
+    const checkout = fixture(null);
+    try {
+      const result = run(checkout, "2026-08-28");
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(result.stdout).not.toMatch(/Retail price snapshot/);
+    } finally {
+      rmSync(checkout, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses to run when lib/pricing.ts exists but its TTL cannot be read", () => {
+    // Drift between the control and its monitor must not degrade into a silent
+    // skip: that is how the price gate went dark for weeks unreported.
+    const checkout = fixture('import unitedStates from "../data/us-retail-2026-08-27.json";\n');
+    try {
+      const result = run(checkout, "2026-08-28");
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toMatch(/RETAIL_SNAPSHOT_TTL_DAYS/);
+    } finally {
+      rmSync(checkout, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses to run when the TTL is readable but no snapshot import is found", () => {
+    const checkout = fixture("export const RETAIL_SNAPSHOT_TTL_DAYS = 45;\n");
+    try {
+      const result = run(checkout, "2026-08-28");
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toMatch(/retail snapshot import/);
+    } finally {
+      rmSync(checkout, { recursive: true, force: true });
+    }
+  });
+
+  it("reads the real TTL and snapshot imports from the shipped lib/pricing.ts", () => {
+    const pricing = readFileSync(new URL("../lib/pricing.ts", import.meta.url), "utf8");
+    expect(pricing).toMatch(/RETAIL_SNAPSHOT_TTL_DAYS\s*=\s*\d+/);
+    expect([...pricing.matchAll(/^import\s+\w+\s+from\s+"\.\.\/data\/[\w.-]*retail[\w.-]*\.json";/gmu)].length)
+      .toBeGreaterThanOrEqual(2);
+  });
+});
