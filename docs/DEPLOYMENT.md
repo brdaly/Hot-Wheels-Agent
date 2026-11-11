@@ -10,7 +10,7 @@ Before opening a pull request, compare with `base: main` and the work branch as
 branch diverged and can make a stale branch look like a large unmerged change.
 
 1. Merge only through a pull request after `npm run check`, dependency audit, migration static checks, and the accessibility smoke test pass.
-2. Connect the private GitHub repository to separate preview and production Vercel projects.
+2. Connect the GitHub repository to separate preview and production Vercel projects.
 3. Create separate preview and production Supabase projects. Apply migrations `001` through `007` in order.
 4. Disable public Supabase sign-ups, invite the owner, and complete the owner bootstrap in `SECURITY.md`.
 5. Configure environment variables in the hosting platform; do not expose service-role or OpenAI keys to the browser.
@@ -21,7 +21,7 @@ branch diverged and can make a stale branch look like a large unmerged change.
 ## Required production variables
 
 - `OPENAI_API_KEY`
-- `OPENAI_MODEL` (defaults to `gpt-5.6`; pin a model snapshot for formal regression releases when available)
+- `OPENAI_MODEL` (defaults to `gpt-5.6-luna`; verify model availability and pin a supported snapshot for formal regression releases when available)
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
