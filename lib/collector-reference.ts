@@ -5,19 +5,20 @@ import type { z } from "zod";
 
 type ChaseStatus = z.infer<typeof ChaseStatusSchema>;
 
-export const COLLECTOR_REFERENCE_VERSION = "collector-reference-2026-08-28";
+export const COLLECTOR_REFERENCE_AS_OF = hunts.asOf;
+export const COLLECTOR_REFERENCE_VERSION = `collector-reference-${COLLECTOR_REFERENCE_AS_OF}`;
 
 const SOURCES = [
   {
     name: "HWtreasure Treasure Hunt Checklist",
     url: "https://www.hwtreasure.com/treasure-hunt-checklist/",
-    retrievedAt: "2026-08-28",
+    retrievedAt: findSourceByUrl("https://www.hwtreasure.com/treasure-hunt-checklist/")!.retrievedOn,
     use: "Cross-check annual regular and Super Treasure Hunt names; visible markers still required.",
   },
   {
     name: "Orange Track Diecast 2026 Master List",
     url: "https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/",
-    retrievedAt: "2026-08-28",
+    retrievedAt: findSourceByUrl("https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/")!.retrievedOn,
     use: "Cross-check line, mix, collector number and chase placement; starred or incomplete entries remain provisional.",
   },
 ] as const;

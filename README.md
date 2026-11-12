@@ -47,6 +47,8 @@ flowchart LR
 
 The eight supplied specialist references were reviewed and distilled into a governed [source register](docs/SOURCE_REGISTER.md) and machine-readable [source catalog](data/source-catalog.json). They support discovery, casting/tooling, release-line, TH/STH, premium-chase, vocabulary, and watchlist claims within explicit freshness limits.
 
+The [November 11 review](docs/source-reviews/2026-11-11.md) renewed the five short-cadence references, two US retail categories and three Irish categories. Other price categories remain unknown; older snapshots are preserved as historical records. The freshness report includes retail expiry as well as source and media deadlines.
+
 They do **not** establish fair value, production quantity, live availability, or verified exact identity on their own. Future-year and incomplete entries remain provisional. Derived facts are attributed; tables, prose, affiliate prices, and images are not copied wholesale.
 
 No eBay sold feed is present. Finding/Shopping were decommissioned, Browse represents purchasable listings rather than sold evidence, and Marketplace Insights is currently restricted to existing approved users. Asking prices and guessed fees never substitute for exact completed sales; see the [market-data boundary](docs/DATA_POLICY.md#current-ebay-boundary).

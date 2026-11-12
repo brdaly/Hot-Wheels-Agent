@@ -1,0 +1,318 @@
+{
+  "schemaVersion": "1.0",
+  "reviewedOn": "2026-11-11",
+  "reviewer": "Codex-assisted source reading; no human rights or exact-release approval is asserted",
+  "baseCommit": "c89e3aa1c07ccaaaa94deb537179e4acfed3d355",
+  "scope": "Five overdue specialist reference pages, the two 2026 annual hunt indexes, and limited first-party US and Irish retail observations. No source image, copied dataset or raw source HTML is committed.",
+  "catalogDecisions": [
+    {
+      "id": "hwtreasure-t-hunts",
+      "action": "renew scoped candidate/reference support",
+      "reason": "Year router now includes 2027. All 15 casting/code/mix tuples in the 2026 regular index match the committed candidate map. Fast Fish sample supports JJM12, mix N and vehicle marker cues.",
+      "expiresOn": "2026-11-18"
+    },
+    {
+      "id": "hwtreasure-checklist",
+      "action": "renew scoped discovery support",
+      "reason": "The 2026 sections each have 15 candidates. The partial 2027 sections now have eight Super and three regular candidates; update coverage only, without importing their list. The 2026 Super code/mix tuples match the committed map, including H/J.",
+      "expiresOn": "2026-11-18"
+    },
+    {
+      "id": "hwtreasure-chase-cars",
+      "action": "renew scoped candidate/reference support",
+      "reason": "Router covers 2022–2026; seven 2026 0/5 candidates remain. 4Runner sample supports JKF41/Road Trip and visible recognition features. No production-count or exact-identity approval.",
+      "expiresOn": "2026-11-18"
+    },
+    {
+      "id": "orange-track-master-2026",
+      "action": "renew scoped lineup support",
+      "reason": "Broad families, line-specific mixes, Walmart Boulevard GJT68 and Japan Historics 5/P candidate placement remain visible. Updated 11/9 heading matches publisher article:modified_time 2026-11-09T20:58:50+00:00. Blank/starred fields stay provisional.",
+      "expiresOn": "2026-11-18"
+    },
+    {
+      "id": "orange-track-master-2027",
+      "action": "renew provisional watchlist support only",
+      "reason": "The future list remains incomplete with empty Boulevard rows and upcoming sections. Updated 11/9 heading matches publisher article:modified_time 2026-11-09T20:47:05+00:00. No future item is promoted to verified.",
+      "expiresOn": "2026-11-14"
+    }
+  ],
+  "retailDecisions": [
+    {
+      "market": "US",
+      "category": "five_pack",
+      "action": "renew",
+      "price": 6.19,
+      "currency": "USD",
+      "reason": "Exact Target TCIN 14783201 item page shows 6.19; the search list still showed 5.69 and is not used. Retain 5.00 as a policy checkpoint, not an observed retailer offer."
+    },
+    {
+      "market": "US",
+      "category": "team_transport",
+      "action": "renew",
+      "price": 16.99,
+      "currency": "USD",
+      "reason": "Exact Target TCIN 94767182 item page identifies Team Transport and 16.99. Retain 15.00 as a policy checkpoint. This is a category comparison, not exact-release availability."
+    },
+    {
+      "market": "US",
+      "category": "mainline_single",
+      "action": "unknown; omit from current runtime snapshot",
+      "reason": "Web extraction showed an out-of-stock 1.24 option, while the direct response contained multiple prices including 1.28 and other sellers. No unambiguous selected first-party offer was verified."
+    },
+    {
+      "market": "US",
+      "category": "premium_single",
+      "action": "unknown; omit from current runtime snapshot",
+      "reason": "Old URL is a collector landing page, not an exact current 6.50 item observation. Search excerpts do not establish a current category benchmark."
+    },
+    {
+      "market": "US",
+      "category": "premium_4_pack",
+      "action": "unknown; omit from current runtime snapshot",
+      "reason": "JHW42 is an individual display set. The direct response carries a 20.00 offer while the old snapshot claimed 36.00; no general premium-four-pack benchmark is inferred from this set."
+    },
+    {
+      "market": "IE",
+      "category": "unverified categories",
+      "action": "omit unsupported categories from current snapshot; preserve historical snapshot",
+      "reason": "The original nine-category Smyths observations cannot be renewed as supplied. Smyths category GET returned 403. New independent Ken Black observations replace only mainline single, five-pack and ten-pack references; remaining categories stay unknown.",
+      "attemptedUrl": "https://www.smythstoys.com/ie/en-ie/toys/construction-and-cars/cars-trucks-and-trains/hot-wheels/c/SM060101"
+    },
+    {
+      "market": "IE",
+      "category": "mainline_single",
+      "action": "renew from a new first-party retailer observation",
+      "price": 1.99,
+      "currency": "EUR",
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-basic-car-assortment",
+      "reason": "Ken Black exact product record returned one variant with matching price_min/price_max; assorted styles do not establish exact-release stock. Lower-price checkpoint remains collection policy."
+    },
+    {
+      "market": "IE",
+      "category": "five_pack",
+      "action": "renew from a new first-party retailer observation",
+      "price": 8.99,
+      "currency": "EUR",
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-5-car-pack-assortment",
+      "reason": "Ken Black exact product record returned one variant with matching price_min/price_max; assorted styles do not establish exact-release stock. Lower-price checkpoint remains collection policy."
+    },
+    {
+      "market": "IE",
+      "category": "ten_pack",
+      "action": "renew from a new first-party retailer observation",
+      "price": 13.99,
+      "currency": "EUR",
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-basic-10-car-pack-assortment",
+      "reason": "Ken Black exact product record returned one variant with matching price_min/price_max; assorted styles do not establish exact-release stock. Lower-price checkpoint remains collection policy."
+    }
+  ],
+  "unchangedBoundaries": [
+    "Existing 7-day and 3-day source cadences retained; source renewal is not an exact-release verification or media license.",
+    "Empty media manifest inventory checked at 2026-11-11T19:21:20Z: assets is empty and no third-party media is shipped. Only top-level review/expiry metadata renewed for seven days; no asset, identity, rights evidence or human approval created.",
+    "Longer-cadence sources were not re-reviewed and retain their original dates.",
+    "Completed-sale valuation remains unavailable; no feed, account permission or licensing assumption was added."
+  ],
+  "evidence": [
+    {
+      "url": "https://www.hwtreasure.com/t-hunts/",
+      "sha256": "c1474bc585341ead0b37e965d9ff5b24e18784976ce6b3cfea6b6b59f960dafc",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://www.hwtreasure.com/treasure-hunt-checklist/",
+      "sha256": "126943b436b9ce4a793702aa98b1d00294457dc02a5d1abc7db711589f2adb72",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://www.hwtreasure.com/category/chase-cars/",
+      "sha256": "394aa0bab6a28de2ca8f5b9137659164ecf17efcc80a23930c16aad7d1c913e1",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://www.hwtreasure.com/2026-2/",
+      "sha256": "ce8e3b01ad92d73ddeb00fa85160edb1d35a13fdf06be970d9146272d09256d0",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://www.hwtreasure.com/2026-super/",
+      "sha256": "4cfdff15e8dc143f4cca770d97f67e4a96fd42733e7d6c5d271b977e4c02fc11",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://www.hwtreasure.com/category/chase-cars/2026-chase-cars/",
+      "sha256": "85cd20034132ab27756c83ce824ddd62459ba2bea91c8ec5bb47f8a31a2f0f6a",
+      "hashScope": "web tool extracted text including retrieval header, UTF-8",
+      "retrievedOn": "2026-11-11",
+      "method": "web_tool_text_extraction",
+      "directHttpStatus": 403,
+      "limitation": "Direct command-line GET was denied; this hash identifies the extracted text read, not a successful raw publisher response."
+    },
+    {
+      "url": "https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/",
+      "finalUrl": "https://orangetrackdiecast.com/2026-hot-wheels-master-list-of-all-lines/",
+      "httpStatus": 200,
+      "sha256": "af3ea60efc8999fb03155840b39b65e8bae4cb0f9ee733f72d3e408bc534b868",
+      "bytes": 1100773,
+      "dateModified": [
+        "article:modified_time\" content=\"2026-11-09T20:58:50+00:00\" /"
+      ],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://orangetrackdiecast.com/2027-hot-wheels-master-list-of-all-lines/",
+      "finalUrl": "https://orangetrackdiecast.com/2027-hot-wheels-master-list-of-all-lines/",
+      "httpStatus": 200,
+      "sha256": "63f49202f77c87e40525135eabec07034f630a640a60b78a226267edb6edc7e2",
+      "bytes": 471042,
+      "dateModified": [
+        "article:modified_time\" content=\"2026-11-09T20:47:05+00:00\" /"
+      ],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://www.walmart.com/ip/34253677",
+      "finalUrl": "https://www.walmart.com/ip/Hot-Wheels-1-64-Scale-Basic-Toy-Car-or-Truck-Styles-and-Colors-May-Vary-Item-May-not-be-Pictured/34253677",
+      "httpStatus": 200,
+      "sha256": "d47325beabe0e9243ac7b0ac558769295999c0185f673e8b87d598a43c5e221d",
+      "bytes": 1756253,
+      "dateModified": [],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://www.target.com/p/-/A-14783201",
+      "finalUrl": "https://www.target.com/p/-/A-14783201",
+      "httpStatus": 200,
+      "sha256": "84985fd457cf1b93e120e59f32a91b45fc3b4fafb7be6367eb3714a24ffc1664",
+      "bytes": 371928,
+      "dateModified": [],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://creations.mattel.com/products/hot-wheels-premium-collector-display-set-jhw42",
+      "finalUrl": "https://creations.mattel.com/products/hot-wheels-premium-collector-display-set-jhw42",
+      "httpStatus": 200,
+      "sha256": "cdb06702088bcef0e1ac8e85fe2760a958ca2b1e9e3b463d917a53991a0558ec",
+      "bytes": 605631,
+      "dateModified": [],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://www.target.com/s/hot%2Bwheels%2Bteam%2Btransport",
+      "finalUrl": "https://www.target.com/s/hot%2Bwheels%2Bteam%2Btransport",
+      "httpStatus": 200,
+      "sha256": "d16fb4e19c7ac80e79609f6e0d3edc4329151eb24edf51eb7851c45e6847cbc7",
+      "bytes": 133198,
+      "dateModified": [],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://www.target.com/p/hot-wheels-chevrolet-corvair-toy-vehicle-1-64-scale/-/A-94767182",
+      "retrievedOn": "2026-11-11",
+      "httpStatus": 200,
+      "sha256": "a2f4b3b51001d5e8d4dd78d656d512ea11477600d68bc5de0f5c44dc8467f7aa",
+      "method": "direct_https_get",
+      "hashScope": "raw HTTP response body"
+    },
+    {
+      "url": "https://kenblack.ie/products/hot-wheels-basic-car-assortment.js",
+      "httpStatus": 200,
+      "sha256": "d302cc8d108b37bba2eded1d53c40e5ac80e830e9fceab90375280040339a1e6",
+      "title": "Hot Wheels Basic Car Assortment",
+      "price": 199,
+      "price_min": 199,
+      "price_max": 199,
+      "available": true,
+      "variants": [
+        {
+          "sku": "100052",
+          "price": 199,
+          "available": true
+        }
+      ],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_product_record",
+      "hashScope": "raw HTTP response body; product price integer in EUR cents"
+    },
+    {
+      "url": "https://kenblack.ie/products/hot-wheels-5-car-pack-assortment.js",
+      "httpStatus": 200,
+      "sha256": "d6f8ded8f9c5efd4111f3b9da66ff30860abb941f6697ea98c8b5e2ca28447c5",
+      "title": "Hot Wheels 5-Car Pack Assortment",
+      "price": 899,
+      "price_min": 899,
+      "price_max": 899,
+      "available": true,
+      "variants": [
+        {
+          "sku": "100051",
+          "price": 899,
+          "available": true
+        }
+      ],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_product_record",
+      "hashScope": "raw HTTP response body; product price integer in EUR cents"
+    },
+    {
+      "url": "https://kenblack.ie/products/hot-wheels-basic-10-car-pack-assortment.js",
+      "httpStatus": 200,
+      "sha256": "2a6efb52c83965c05345a1d063be2d98a25055e2bedb7f30e5aae147259ad0d8",
+      "title": "Hot Wheels Basic  10 Car Pack Assortment",
+      "price": 1399,
+      "price_min": 1399,
+      "price_max": 1399,
+      "available": true,
+      "variants": [
+        {
+          "sku": "168526",
+          "price": 1399,
+          "available": true
+        }
+      ],
+      "retrievedOn": "2026-11-11",
+      "method": "direct_https_product_record",
+      "hashScope": "raw HTTP response body; product price integer in EUR cents"
+    }
+  ],
+  "mediaInventoryReview": {
+    "reviewedAt": "2026-11-11T19:21:20.000Z",
+    "expiresAt": "2026-11-18T19:21:20.000Z",
+    "assetCount": 0,
+    "reviewer": "Codex automated empty-inventory check",
+    "humanRightsApprovalsCreated": 0,
+    "reason": "Manifest-level metadata has no human approver field; human approval requirements govern individual assets. An empty inventory has no asset rights to renew.",
+    "manifestSha256": "68c95bf17cbf934af3ccf92707091085b67d148d2a4ad6afd00e699080f6922a"
+  }
+}

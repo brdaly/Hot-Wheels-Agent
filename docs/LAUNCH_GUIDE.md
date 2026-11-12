@@ -20,26 +20,21 @@ For a Hot Wheels-only launch, using `hotwheels.dalyventures.com` directly is tec
 
 DNS often resolves quickly but can take 24–48 hours.
 
-## Public and member product boundary
+## Current product boundary
 
-| Access | Launch capabilities |
-|---|---|
-| Public, no account | Chase Grid, US retail gates, casting autocomplete, deterministic scoring explanations, limited photo/name analysis |
-| Free member | Saved garage, analysis history, watchlist, collection ownership and duplicate tracking |
-| Exclusive member | Higher analysis allowance, bulk peg-wall scans, alerts, personalized targets, exports and advanced history |
+The current application has a public, precomputed fictional demo and reference browsing, plus a single invited owner's analysis and collection workspace. Public visitors do not receive billable photo/name analysis. Supabase owner authentication, RLS, hourly/daily quotas and concurrency controls already exist; they are not future member features.
 
-Supabase Auth is the natural next implementation for magic-link and social login because the application already uses Supabase. Do not require an account merely to browse the field guide or retail data.
+Do not advertise free/exclusive membership, subscriptions, a public garage or a public analysis allowance as shipped. Multi-user operation requires the separate public-product gate in [ROADMAP.md](ROADMAP.md), including tenant isolation, consent, deletion/export, abuse controls and a new threat model.
 
-## API budget controls
+Reference browsing must display the actual source/retail review date. Expired inputs remain unknown until re-verified; a successful application build does not renew them. See [the November review](source-reviews/2026-11-11.md) for supported price categories and remaining limitations.
 
-1. Use a separate OpenAI API Project for this application.
-2. Set an enforced hard monthly spend limit before making analysis public. Start at $5–$10.
-3. Add notifications below the cap, for example at $2, $5 and $8 for a $10 ceiling.
-4. Set `OPENAI_MODEL=gpt-5.6-luna` in Vercel Production and Preview.
-5. Keep `OPENAI_IMAGE_DETAIL=auto`, `OPENAI_MAX_OUTPUT_TOKENS=3200` and `HOTWHEELS_ANALYSES_PER_MINUTE=3` for the initial single-car use case.
-6. Use `HOTWHEELS_ANALYSIS_ENABLED=false` as the emergency kill switch, then redeploy.
-7. Review actual token usage after a fixed test set before raising limits.
+## Analysis budget controls
 
-The in-process request limit reduces accidental bursts but is not a globally durable quota across Vercel instances. The provider hard spend cap is the authoritative cost ceiling. A later member launch should add a database-backed daily allowance keyed to the authenticated user.
+- Use separate provider and hosting projects for preview and production, with independently stored secrets.
+- Configure `HOTWHEELS_HOURLY_ANALYSIS_LIMIT`, `HOTWHEELS_DAILY_ANALYSIS_LIMIT` and `HOTWHEELS_MAX_CONCURRENT_ANALYSES` from [.env.example](../.env.example). These controls use the database-backed owner quota and lease implementation; do not substitute an in-process counter.
+- Keep provider budget alerts and hosting spend controls configured. Verify what each provider actually enforces before relying on it as a hard stop.
+- Keep the current model and output settings explicit in the hosting environment and measure usage on a fixed test set before raising allowances.
+- Exercise `HOTWHEELS_ANALYSIS_ENABLED=false` as the emergency analysis kill switch before promotion.
+- Never enable `HOTWHEELS_DEV_AUTH_BYPASS` in preview, production or a shared environment.
 
-ChatGPT subscriptions and API billing are separate. Do not assume general free API credits are available. Check the OpenAI Platform billing page for any project-specific credit grant; otherwise use a small prepaid balance and hard cap for the test phase.
+Use [DEPLOYMENT.md](DEPLOYMENT.md) for owner bootstrap, migrations, readiness, retention scheduling and rollback. Domain configuration alone does not establish application readiness.

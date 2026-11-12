@@ -1,0 +1,35 @@
+{
+  "market": "IE",
+  "currency": "EUR",
+  "asOf": "2026-11-11",
+  "provenance": "First-party Ken Black exact product pages and product records read on 2026-11-11; assorted category references, not exact-release availability",
+  "benchmarks": [
+    {
+      "category": "mainline_single",
+      "retailer": "Ken Black",
+      "normalPrice": 1.99,
+      "strongBuyAtOrBelow": 1.67,
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-basic-car-assortment"
+    },
+    {
+      "category": "five_pack",
+      "retailer": "Ken Black",
+      "normalPrice": 8.99,
+      "strongBuyAtOrBelow": 7.99,
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-5-car-pack-assortment"
+    },
+    {
+      "category": "ten_pack",
+      "retailer": "Ken Black",
+      "normalPrice": 13.99,
+      "strongBuyAtOrBelow": 11.99,
+      "sourceUrl": "https://kenblack.ie/products/hot-wheels-basic-10-car-pack-assortment"
+    }
+  ],
+  "notes": [
+    "Only mainline single, five-pack and ten-pack references were renewed. Premium, Silver Series and Team Transport categories remain unknown until separately reviewed.",
+    "Prices are EUR observations from Ken Black, not a claim of nationwide retailer pricing or exact-release stock.",
+    "Lower-price checkpoints are collection policy thresholds, not retailer sale offers. Assorted styles and store availability require confirmation before purchase.",
+    "No historical Tesco multi-buy or implicit exchange-rate conversion is applied."
+  ]
+}

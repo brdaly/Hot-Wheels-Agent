@@ -1,5 +1,5 @@
-import ireland from "../data/ireland-retail-2026-08-02.json";
-import unitedStates from "../data/us-retail-2026-08-27.json";
+import ireland from "../data/ireland-retail-2026-11-11.json";
+import unitedStates from "../data/us-retail-2026-11-11.json";
 import type { CarObservation, PhotoAnalysis, ProductCategory } from "./analysis-schema";
 
 export const PRICE_POLICY_VERSION = "retail-gate-v2.0";
