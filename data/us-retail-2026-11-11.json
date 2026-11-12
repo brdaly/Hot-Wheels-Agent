@@ -1,0 +1,28 @@
+{
+  "market": "US",
+  "currency": "USD",
+  "asOf": "2026-11-11",
+  "provenance": "First-party Target item pages read on 2026-11-11; category references only, no exact-release availability claim",
+  "benchmarks": [
+    {
+      "category": "five_pack",
+      "retailer": "Target",
+      "normalPrice": 6.19,
+      "strongBuyAtOrBelow": 5.0,
+      "sourceUrl": "https://www.target.com/p/-/A-14783201"
+    },
+    {
+      "category": "team_transport",
+      "retailer": "Target",
+      "normalPrice": 16.99,
+      "strongBuyAtOrBelow": 15.0,
+      "sourceUrl": "https://www.target.com/p/hot-wheels-chevrolet-corvair-toy-vehicle-1-64-scale/-/A-94767182"
+    }
+  ],
+  "notes": [
+    "Only five-pack and Team Transport category references were renewed. Mainline, premium single, and premium display-set gates remain unknown until an unambiguous current first-party observation is reviewed.",
+    "The lower-price checkpoints are collection policy thresholds, not retailer sale offers.",
+    "Item-page price takes precedence over a stale search listing. Store pricing, tax, exact release and availability must be checked before purchase.",
+    "Retail observations are not completed-sale evidence or secondary-market valuations."
+  ]
+}

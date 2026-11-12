@@ -2,7 +2,7 @@ name: Source review reminder
 
 on:
   schedule:
-    - cron: "17 12 * * 1"
+    - cron: "17 12 * * *"
   workflow_dispatch:
 
 permissions:
@@ -62,7 +62,7 @@ jobs:
             --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")"
           if [ -n "$number" ]; then
             gh issue comment "$number" \
-              --body "Every governed input is back within its re-review window as of $(date -u +%Y-%m-%d). Closing; the weekly job will reopen this if anything expires again."
+              --body "Every governed input is back within its re-review window as of $(date -u +%Y-%m-%d). Closing; the daily job will reopen this if anything expires again."
             gh issue close "$number" --reason completed
           fi
 

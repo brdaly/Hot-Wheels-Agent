@@ -7,7 +7,7 @@ import carSuggestions from "@/data/car-search-index.json";
 import hunts from "@/data/hunt-map-2026.json";
 import { HUNT_REFERENCE_IMAGES, type HuntReferenceImage } from "@/data/hunt-reference-images";
 import { PUBLIC_DEMO_REVIEWED_ON, PUBLIC_DEMO_RULESET, publicDemoScenarios } from "@/data/public-demo-scenarios";
-import retail from "@/data/us-retail-2026-08-27.json";
+import retail from "@/data/us-retail-2026-11-11.json";
 import { deriveResultPresentation } from "@/lib/result-presentation";
 
 const PRODUCT_NAME = "Hot Wheels Collector Intelligence";

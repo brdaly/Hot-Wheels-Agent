@@ -26,18 +26,33 @@ export type ExpiredAssetRight = {
   daysOverdue: number;
 };
 
+export type StaleRetailSnapshot = {
+  /** Repository-relative path, as imported by lib/pricing.ts. */
+  file: string;
+  /** The import binding in lib/pricing.ts, e.g. "unitedStates" or "ireland". */
+  market: string;
+  asOf: string;
+  ageDays: number | null;
+  ttlDays: number;
+  reason: "expired" | "future_date" | "invalid_date";
+  daysOverdue: number | null;
+};
+
 export type ExpiredReport = {
   asOf: string;
   sources: ExpiredSource[];
   manifest: ExpiredManifest | null;
   /** Assets the media gate already refuses, whatever the manifest's own date says. */
   assets: ExpiredAssetRight[];
+  /** Expired, future-dated or unreadable observations refused by the price gate. */
+  snapshots: StaleRetailSnapshot[];
 };
 
 export declare function collectExpired(
   catalog: { sources: readonly Record<string, unknown>[] },
   manifest: Record<string, unknown>,
   asOf: Date,
+  snapshots?: readonly { file: string; market: string; asOf: string; ttlDays: number; ageDays: number }[],
 ): ExpiredReport;
 
 export declare function formatReport(expired: ExpiredReport): string;

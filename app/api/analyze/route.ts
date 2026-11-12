@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AnalyzeOptionsSchema } from "@/lib/analysis-schema";
-import { deterministicCaseInference, findChaseReference } from "@/lib/collector-reference";
+import { COLLECTOR_REFERENCE_AS_OF, deterministicCaseInference, findChaseReference } from "@/lib/collector-reference";
 import { ownedQuantitiesByFingerprint, persistPhotoEvaluation, recordModelUsage } from "@/lib/db";
 import {
   MAX_IMAGE_FILES,
@@ -214,9 +214,9 @@ export async function POST(request: NextRequest) {
           kind: "Attributed external release reference",
           authority: "specialist_secondary",
           url: referenceMatch.entry.sourceUrl,
-          asOf: "2026-08-28",
+          asOf: COLLECTOR_REFERENCE_AS_OF,
           freshness: "current",
-          note: "Link-only reference; image rights remain with the source publisher.",
+          note: "Candidate map cross-checked against the annual indexes on this date; individual item pages may have earlier retrieval dates. Link only; image rights remain with the source publisher.",
         },
       ] : [];
       return {
